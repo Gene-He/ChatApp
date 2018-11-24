@@ -2,6 +2,7 @@ package edu.rice.comp504.model;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sun.deploy.util.GeneralUtil;
 import org.eclipse.jetty.websocket.api.Session;
@@ -13,9 +14,9 @@ import edu.rice.comp504.model.res.*;
 
 public class DispatcherAdapter extends Observable {
 
-    private int nextUserId;
-    private int nextRoomId;
-    private int nextMessageId;
+    private AtomicInteger nextUserId;
+    private AtomicInteger nextRoomId;
+    private AtomicInteger nextMessageId;
 
     // Maps user id to the user
     private Map<Integer, User> users;
@@ -33,13 +34,13 @@ public class DispatcherAdapter extends Observable {
      * Constructor, initializing all private fields.
      */
     public DispatcherAdapter() {
-        this.nextRoomId = 0;
-        this.nextUserId = 0;
-        this.nextMessageId = 0;
-        this.users = new ConcurrentHashMap();
-        this.rooms = new ConcurrentHashMap();
-        this.messages = new ConcurrentHashMap();
-        this.userIdFromSession = new ConcurrentHashMap();
+        this.nextRoomId = new AtomicInteger(0);
+        this.nextUserId = new AtomicInteger(0);
+        this.nextMessageId = new AtomicInteger(0);
+        this.users = new ConcurrentHashMap<>();
+        this.rooms = new ConcurrentHashMap<>();
+        this.messages = new ConcurrentHashMap<>();
+        this.userIdFromSession = new ConcurrentHashMap<>();
     }
 
     /**
