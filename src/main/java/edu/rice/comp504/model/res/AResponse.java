@@ -6,7 +6,7 @@ import com.google.gson.Gson;
  * Abstract class of response warping the message sending from server to client.
  */
 public abstract class AResponse {
-    private  String type;   // The type of the response, use class name to denote type
+    private String type;   // The type of the response, use class name to denote type
     private long timestamp; // The time when response is being created
 
     /**
@@ -25,5 +25,21 @@ public abstract class AResponse {
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

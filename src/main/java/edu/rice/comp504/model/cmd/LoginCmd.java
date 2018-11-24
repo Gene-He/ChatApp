@@ -3,9 +3,14 @@ package edu.rice.comp504.model.cmd;
 import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.obj.User;
 
-class AckMessageCmd implements IUserCmd {
-
-    private int messageId;
+/**
+ * Command for user login.
+ */
+class LoginCmd implements IUserCmd {
+    private String username;
+    private int age;
+    private String location;
+    private String school;
 
     /**
      * Constructs an instance based on the message from clients.
@@ -13,11 +18,14 @@ class AckMessageCmd implements IUserCmd {
      * @param message the exact message from webSocket.
      * @Throws throws {@code IllegalArgumentException} if this message is not in required format.
      */
-    public AckMessageCmd(String message) {
+    public LoginCmd(String message) {
         String[] info = message.split(" ");
-        Preconditions.checkArgument(info.length == 2 && info[0].equals("ack"), "Illegal ackMessage message format: %s", message);
+        Preconditions.checkArgument(info.length == 5 && info[0].equals("login"), "Illegal login message format: %s", message);
 
-        this.messageId = Integer.parseInt(info[1]);
+        this.username = info[1];
+        this.age = Integer.parseInt(info[2]);
+        this.location = info[3];
+        this.school = info[4];
     }
 
     /**
