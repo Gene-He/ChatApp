@@ -2,7 +2,7 @@ package edu.rice.comp504.model.cmd;
 
 import edu.rice.comp504.model.obj.User;
 
-class EnforceFilterCmd implements IUserCmd {
+class QueryUsersOfRoom implements IUserCmd {
     /**
      * Execute is the function such that all command will execute once the command is passed to observer's update
      *

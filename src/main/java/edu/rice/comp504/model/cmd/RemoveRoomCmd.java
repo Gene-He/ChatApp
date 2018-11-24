@@ -2,7 +2,7 @@ package edu.rice.comp504.model.cmd;
 
 import edu.rice.comp504.model.obj.User;
 
-public class RemoveRoomCmd implements IUserCmd {
+class RemoveRoomCmd implements IUserCmd {
     /**
      * Execute is the function such that all command will execute once the command is passed to observer's update
      *
