@@ -3,6 +3,7 @@ package edu.rice.comp504.model;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sun.deploy.util.GeneralUtil;
 import org.eclipse.jetty.websocket.api.Session;
 
 import edu.rice.comp504.model.obj.ChatRoom;
@@ -45,9 +46,21 @@ public class DispatcherAdapter extends Observable {
      * Allocate a user id for a new session.
      * @param session the new session
      */
+    //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
 
+        advanceCounter(this.nextUserId);
+
+        userIdFromSession.put(session, this.nextUserId);
+
     }
+
+    /**
+     * Separate method to apply operator ++, but within a synchronized method
+     * @param counter
+     */
+    public synchronized void advanceCounter(int counter) {counter++;}
+
 
     /**
      * Get the user if from a session.
@@ -74,7 +87,13 @@ public class DispatcherAdapter extends Observable {
      * @return the new user that has been loaded
      */
     public User loadUser(Session session, String body) {
-        return null;
+        String[] tokens = body.split(" ");
+        ChatRoom[] passrooms = rooms.values().toArray(new ChatRoom[rooms.size()]);
+        int my_id = getUserIdFromSession(session);
+        User my_user = new User(my_id, session, tokens[0], (int)(Integer.valueOf(tokens[1])),
+                tokens[2], tokens[3], passrooms);
+        users.put(my_id, my_user);
+        return my_user;
     }
 
     /**
@@ -121,6 +140,20 @@ public class DispatcherAdapter extends Observable {
 
     }
 
+    /**
+     * We need this method when a user is first loaded. We have to check all of the rooms against
+     * the profile of the user to see what's available.
+     * @param my_user
+     * @return ChatRoom array of available rooms.
+     */
+    public ChatRoom[] findAvailableRooms(User my_user) {
+        
+    }
+
+
+
+
+    //TODO: I question the need for this method. We don't have to allow this. (-Alex)
     /**
      * Make modification on chat room filer by the owner.
      * @param session the session of the chat room owner
