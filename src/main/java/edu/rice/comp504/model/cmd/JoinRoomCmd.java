@@ -3,7 +3,7 @@ package edu.rice.comp504.model.cmd;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 
-public class JoinRoomCmd implements IUserCmd {
+class JoinRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;
     private User user;

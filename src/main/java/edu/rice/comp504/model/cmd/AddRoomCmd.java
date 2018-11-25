@@ -2,6 +2,10 @@ package edu.rice.comp504.model.cmd;
 
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
+import edu.rice.comp504.model.res.AResponse;
+import edu.rice.comp504.model.res.UserRoomsResponse;
+
+import java.util.HashSet;
 
 class AddRoomCmd implements IUserCmd {
 
@@ -30,9 +34,9 @@ class AddRoomCmd implements IUserCmd {
             // Update this user with newly created room.
             context.addRoom(chatRoom);
 
-            // Constructs a UserRoomsResponse.
-
-
+            // Constructs a UserRoomsResponse and send it to this user.
+            AResponse res = new UserRoomsResponse("UserRooms", context.getId(), new HashSet<>(context.getJoinedRoomIds()), new HashSet<>(context.getAvailableRoomIds()));
+            context.getSession().getRemote().sendString(res.toJson());
         }
     }
 }
