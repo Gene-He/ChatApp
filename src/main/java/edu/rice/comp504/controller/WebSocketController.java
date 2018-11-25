@@ -41,4 +41,50 @@ public class WebSocketController {
 
     }
 
+    private void ackMessageAction(Session user, String message) {
+
+    }
+
+    private void addRoomAction(Session user, String message) {
+
+    }
+
+    private void EnforceFilterAction(Session user, String message) {
+
+    }
+
+    private void JoinRoomAction(Session user, String message) {
+
+    }
+
+    private void LeaveRoomAction(Session user, String message) {
+
+    }
+
+    private void QueryChatHistoryOfRoomAction(Session user, String message) {
+
+    }
+
+    private void QueryNotificationsOfRoomAction(Session user, String message) {
+
+    }
+
+    private void QueryUsersOfRoomAction(Session user, String message) {
+
+    }
+
+    private void removeRoomAction(Session user, String message) {
+
+    }
+
+    private void sendMessageAction(Session user, String message) {
+
+    }
+
+    private void loginAction(Session user, String message) {
+
+    }
+
+    private void
+
 }

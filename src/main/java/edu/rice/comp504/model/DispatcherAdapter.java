@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sun.deploy.util.GeneralUtil;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import org.eclipse.jetty.websocket.api.Session;
 
 import edu.rice.comp504.model.obj.ChatRoom;
@@ -28,7 +30,8 @@ public class DispatcherAdapter extends Observable {
     private Map<Integer, Message> messages;
 
     // Maps session to user id
-    private Map<Session, Integer> userIdFromSession;
+    // By calling userIdFromSession.inverse(), we can get a map from userId to session which will be used by notifyClient(user, AResponse)
+    private BiMap<Session, Integer> userIdFromSession;
 
     /**
      * Constructor, initializing all private fields.
@@ -40,7 +43,7 @@ public class DispatcherAdapter extends Observable {
         this.users = new ConcurrentHashMap<>();
         this.rooms = new ConcurrentHashMap<>();
         this.messages = new ConcurrentHashMap<>();
-        this.userIdFromSession = new ConcurrentHashMap<>();
+        this.userIdFromSession = Maps.synchronizedBiMap(HashBiMap.create());
     }
 
     /**
