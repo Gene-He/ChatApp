@@ -6,6 +6,7 @@ import edu.rice.comp504.model.obj.User;
 class AddRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;
+
     /**
      * Constructs an instance based on the message from clients.
      *
@@ -15,6 +16,7 @@ class AddRoomCmd implements IUserCmd {
     public AddRoomCmd(ChatRoom room) {
        this.chatRoom = room;
     }
+
     /**
      * Execute is the function such that all command will execute once the command is passed to observer's update
      *
@@ -23,6 +25,14 @@ class AddRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
+        // Only if this user is qualified for this newly created room, we add this new room to this user's available room list.
+        if (chatRoom.applyFilter(context)) {
+            // Update this user with newly created room.
+            context.addRoom(chatRoom);
 
+            // Constructs a UserRoomsResponse.
+
+
+        }
     }
 }
