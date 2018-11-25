@@ -200,7 +200,6 @@ public class DispatcherAdapter extends Observable {
      * @param response the information for notifying
      */
     public static void notifyClient(User user, AResponse response) {
-
     }
 
 
@@ -210,7 +209,6 @@ public class DispatcherAdapter extends Observable {
      * @param response the notification information
      */
     public static void notifyClient(Session session, AResponse response) {
-
     }
 
     /**

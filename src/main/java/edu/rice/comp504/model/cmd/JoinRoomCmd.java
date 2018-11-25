@@ -1,23 +1,22 @@
 package edu.rice.comp504.model.cmd;
 
-import com.google.common.base.Preconditions;
+import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 
 public class JoinRoomCmd implements IUserCmd {
 
-    private int roomId;
+    private ChatRoom chatRoom;
+    private User user;
 
     /**
      * Constructs an instance based on the message from clients.
      *
-     * @param message the exact message from webSocket.
+     * @param room the new room constructed by dispatcher
      * @Throws throws {@code IllegalArgumentException} if this message is not in required format.
      */
-    public JoinRoomCmd(String message) {
-        String[] info = message.split(",");
-        Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", message);
-
-        this.roomId = Integer.parseInt(info[1]);
+    public JoinRoomCmd(ChatRoom room, User user) {
+        this.chatRoom = room;
+        this.user = user;
     }
     /**
      * Execute is the function such that all command will execute once the command is passed to observer's update

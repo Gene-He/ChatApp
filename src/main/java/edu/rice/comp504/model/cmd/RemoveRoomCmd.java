@@ -1,23 +1,19 @@
 package edu.rice.comp504.model.cmd;
 
-import com.google.common.base.Preconditions;
+import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 
 class RemoveRoomCmd implements IUserCmd {
 
-    private int roomId;
-
+    private ChatRoom chatRoom;
     /**
      * Constructs an instance based on the message from clients.
      *
-     * @param message the exact message from webSocket.
+     * @param room the new room constructed by dispatcher
      * @Throws throws {@code IllegalArgumentException} if this message is not in required format.
      */
-    public RemoveRoomCmd(String message) {
-        String[] info = message.split(",");
-        Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal remove room message format: %s", message);
-
-        this.roomId = Integer.parseInt(info[1]);
+    public RemoveRoomCmd(ChatRoom room) {
+        this.chatRoom = room;
     }
 
     /**
