@@ -13,8 +13,9 @@ public class UserRoomsResponse extends AResponse {
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public UserRoomsResponse(String type, Set<Integer> joinedRoomIds, Set<Integer> availableRoomIds) {
+    public UserRoomsResponse(String type, int userId, Set<Integer> joinedRoomIds, Set<Integer> availableRoomIds) {
         super(type);
+        this.userId = userId;
         this.joinedRoomIds = joinedRoomIds;
         this.availableRoomIds = availableRoomIds;
     }
