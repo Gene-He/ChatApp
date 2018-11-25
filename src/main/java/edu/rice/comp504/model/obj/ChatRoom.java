@@ -171,6 +171,11 @@ public class ChatRoom extends Observable {
         return true;
     }
 
+    public void removeAllUsers() {
+        userNameFromUserId.clear();
+        deleteObservers();
+    }
+
     /**
      * Append chat message into chat history list
      * Map the single message body with key value (senderID&receiverID)
