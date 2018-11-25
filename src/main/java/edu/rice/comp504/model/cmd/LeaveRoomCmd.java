@@ -3,7 +3,7 @@ package edu.rice.comp504.model.cmd;
 import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.obj.User;
 
-class LeaveRoomCmd implements IUserCmd {
+public class LeaveRoomCmd implements IUserCmd {
 
     private int roomId;
 

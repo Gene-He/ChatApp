@@ -1,6 +1,9 @@
 package edu.rice.comp504.model.obj;
 
+import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.DispatcherAdapter;
+import edu.rice.comp504.model.cmd.JoinRoomCmd;
+import edu.rice.comp504.model.cmd.LeaveRoomCmd;
 
 import java.util.*;
 import java.util.Observable;
@@ -111,7 +114,7 @@ public class ChatRoom extends Observable {
      * Return users in the chat room
      */
     public Map<Integer, String> getUsers() {
-        return null;
+        return userNameFromUserId;
     }
 
     /**
@@ -119,7 +122,9 @@ public class ChatRoom extends Observable {
      * @return boolean value indicating whether the user is eligible to join the room
      */
     public boolean applyFilter(User user) {
-        return false;
+        int age = user.getAge();
+        return age >= ageLowerBound && age <= ageUpperBound && checkMeetRestriction(locations,user.getLocation()) &&
+                checkMeetRestriction(schools,user.getSchool());
     }
 
     /**
@@ -127,7 +132,10 @@ public class ChatRoom extends Observable {
      * Then apply the new restriction to all users in the chat room
      */
     public void modifyFilter(int lower, int upper, String[] locations, String[] schools) {
-
+        ageUpperBound = lower;
+        ageLowerBound = upper;
+        this.locations = locations;
+        this.schools = schools;
     }
 
     /**
@@ -135,7 +143,14 @@ public class ChatRoom extends Observable {
      * Create a user joined notification message and then add user into the observer list
      */
     public boolean addUser(User user) {
-        return false;
+        //TODO: Modify the command message
+        if (userNameFromUserId.containsKey(user.getId()) && !applyFilter(user)){
+            return false;
+        }
+        notifyObservers(new JoinRoomCmd("join,"+id));
+        userNameFromUserId.put(user.getId(),user.getName());
+        addObserver(user);
+        return true;
     }
 
     /**
@@ -144,7 +159,14 @@ public class ChatRoom extends Observable {
      * Delete user from observer list
      */
     public boolean removeUser(User user, String reason) {
-        return false;
+        //TODO: Modify the command message
+        if (!userNameFromUserId.containsKey(user.getId())){
+            return false;
+        }
+        userNameFromUserId.remove(user.getId());
+        notifyObservers(new LeaveRoomCmd("leave,"+id));
+        deleteObserver(user);
+        return true;
     }
 
     /**
@@ -152,13 +174,40 @@ public class ChatRoom extends Observable {
      * Map the single message body with key value (senderID&receiverID)
      */
     public void storeMessage(User sender, User receiver, Message message) {
-
+        String key = sender.getId() + "," + receiver.getId();
+        if (!chatHistory.containsKey(key)){
+            chatHistory.put(key,new ArrayList<>());
+        }
+        chatHistory.get(key).add(message);
     }
 
     /**
      * Parse the key and remove chat history related to user
      */
     private void freeChatHistory(User user) {
-        // TODO: parse the key and remove chat history related to user
+        for(Iterator<Map.Entry<String,List<Message>>> it = chatHistory.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String,List<Message>> entry = it.next();
+            String[] users = entry.getKey().split(",");
+            Preconditions.checkArgument(users.length == 2,"Illegal key of chatHistory");
+            if (users[0].equals(user.getId()) || users[1].equals(user.getId())){
+                it.remove();
+            }
+        }
+    }
+
+    private boolean checkMeetRestriction(String[] arr, String candidate) {
+        if (arr == null) {
+            return true;
+        }
+        if (candidate == null) {
+            return false;
+        }
+        for (String s : arr) {
+            if (candidate.equals(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
+
