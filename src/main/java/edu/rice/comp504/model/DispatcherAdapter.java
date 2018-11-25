@@ -7,9 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
-import edu.rice.comp504.model.cmd.AddRoomCmd;
-import edu.rice.comp504.model.cmd.JoinRoomCmd;
-import edu.rice.comp504.model.cmd.RemoveRoomCmd;
+import edu.rice.comp504.model.cmd.*;
 import org.eclipse.jetty.websocket.api.Session;
 
 import edu.rice.comp504.model.obj.ChatRoom;
@@ -146,7 +144,8 @@ public class DispatcherAdapter extends Observable {
             my_user.addRoom(my_room);
             my_user.moveToJoined(my_room);
 
-            notifyObservers(new AddRoomCmd(body));
+            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room);
+            notifyObservers(cmd);
 
             return my_room;
         }
@@ -185,7 +184,8 @@ public class DispatcherAdapter extends Observable {
         // in ChatRoom.java.
 
         //construct and send command to update joined/available lists of all users
-        notifyObservers(new RemoveRoomCmd(roomId));
+        IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId));
+        notifyObservers(cmd);
 
         //delete room from map.
         rooms.remove(roomId);
@@ -308,6 +308,8 @@ public class DispatcherAdapter extends Observable {
     public static void notifyClient(Session session, AResponse response) {
     }
 
+
+//TODO: The three methods below already exist as a methods in the chatroom class. Do we need them here for some reason?
     /**
      * Get the names of all chat room members.
      * @param roomId the id of the chat room
