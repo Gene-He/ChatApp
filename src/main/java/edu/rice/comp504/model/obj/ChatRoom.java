@@ -149,7 +149,7 @@ public class ChatRoom extends Observable {
         }
         notifyObservers(new JoinRoomCmd("join,"+id));
         userNameFromUserId.put(user.getId(),user.getName());
-        notifications.add(user.getName()+ "joined this room");
+        notifications.add(user.getName()+ " joined this room");
         addObserver(user);
         return true;
     }
@@ -166,7 +166,7 @@ public class ChatRoom extends Observable {
         }
         userNameFromUserId.remove(user.getId());
         notifyObservers(new LeaveRoomCmd("leave,"+id));
-        notifications.add(user.getName()+ "left this room because " + reason);
+        notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
         return true;
     }
