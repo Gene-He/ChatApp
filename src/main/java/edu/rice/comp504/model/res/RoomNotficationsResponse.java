@@ -12,8 +12,9 @@ public class RoomNotficationsResponse extends AResponse {
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public RoomNotficationsResponse(String type, List<String> notifications) {
+    public RoomNotficationsResponse(String type, int roomId, List<String> notifications) {
         super(type);
+        this.roomId = roomId;
         this.notifications = notifications;
     }
 

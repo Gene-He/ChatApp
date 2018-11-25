@@ -12,8 +12,9 @@ public class RoomUsersResponse extends AResponse {
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public RoomUsersResponse(String type, Set<Integer> userIds) {
+    public RoomUsersResponse(String type, int roomId, Set<Integer> userIds) {
         super(type);
+        this.roomId = roomId;
         this.userIds = userIds;
     }
 

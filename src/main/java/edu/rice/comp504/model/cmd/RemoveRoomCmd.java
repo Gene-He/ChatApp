@@ -3,6 +3,8 @@ package edu.rice.comp504.model.cmd;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 
+import java.util.stream.Stream;
+
 class RemoveRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;
@@ -24,6 +26,13 @@ class RemoveRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
+        boolean isInJoinedOrAvailableRoom = false;
+        isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
 
+        if (isInJoinedOrAvailableRoom) {
+            context.removeRoom(chatRoom);
+
+            // TODO: Do we need to notify this context user to update its rooms? what to do if this user has opened this room in front end?
+        }
     }
 }

@@ -5,6 +5,8 @@ import edu.rice.comp504.model.obj.User;
 import edu.rice.comp504.model.res.AResponse;
 import edu.rice.comp504.model.res.UserRoomsResponse;
 
+import javax.imageio.IIOException;
+import java.io.IOException;
 import java.util.HashSet;
 
 class AddRoomCmd implements IUserCmd {
@@ -26,6 +28,8 @@ class AddRoomCmd implements IUserCmd {
      *
      * @param context
      * @context a user which the command will operate on
+     *
+     * @Throws throws {@code IOException} if failed when send message back to this user
      */
     @Override
     public void execute(User context) {
@@ -36,7 +40,13 @@ class AddRoomCmd implements IUserCmd {
 
             // Constructs a UserRoomsResponse and send it to this user.
             AResponse res = new UserRoomsResponse("UserRooms", context.getId(), new HashSet<>(context.getJoinedRoomIds()), new HashSet<>(context.getAvailableRoomIds()));
-            context.getSession().getRemote().sendString(res.toJson());
+
+            try {
+                context.getSession().getRemote().sendString(res.toJson());
+            } catch (IOException exception) {
+                // Just print out what happened without trying again.
+                System.out.println("Failed when sending updated rooms to userId: " + context.getId());
+            }
         }
     }
 }
