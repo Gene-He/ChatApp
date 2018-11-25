@@ -34,6 +34,9 @@ class LeaveRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
+        if (context.getId() == user.getId()) {
+            return;
+        }
         boolean isInJoinedOrAvailableRoom = false;
         isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
         boolean isInJoinedRoom = false;
