@@ -2,7 +2,8 @@ package edu.rice.comp504.model.obj;
 
 import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.DispatcherAdapter;
-import edu.rice.comp504.model.cmd.CmdFactory;
+import edu.rice.comp504.model.cmd.JoinRoomCmd;
+import edu.rice.comp504.model.cmd.LeaveRoomCmd;
 
 import java.util.*;
 import java.util.Observable;
@@ -137,6 +138,8 @@ public class ChatRoom extends Observable {
         this.schools = schools;
     }
 
+    public void addNotification(String s) {notifications.add(s);}
+
     /**
      * If user satisfy all restrictions and has the room in his available room list
      * Create a user joined notification message and then add user into the observer list
@@ -164,6 +167,8 @@ public class ChatRoom extends Observable {
         userNameFromUserId.remove(user.getId());
         notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
         notifications.add(user.getName()+ " left this room because " + reason);
+        //notifyObservers(new LeaveRoomCmd("leave,"+id));
+        //notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
         return true;
     }
@@ -178,6 +183,7 @@ public class ChatRoom extends Observable {
      * Map the single message body with key value (senderID&receiverID)
      */
     public void storeMessage(User sender, User receiver, Message message) {
+        //TODO: need small&large
         String key = sender.getId() + "," + receiver.getId();
         if (!chatHistory.containsKey(key)){
             chatHistory.put(key,new ArrayList<>());
