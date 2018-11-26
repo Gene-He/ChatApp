@@ -1,0 +1,285 @@
+<!-- LoginEvent & Register page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>NullSleep ChatApp</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+</head>
+<body>
+<header>
+    <div class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container d-flex justify-content-between">
+
+            <div style="color:white">Hi Gene!</div>
+            <a href="#" class="navbar-brand d-flex align-items-center">
+                <strong>NullSleep ChatApp</strong>
+            </a>
+            <button type="button" class="btn btn-success">Update My Profile</button>
+        </div>
+    </div>
+</header>
+    <div class="py-5 bg-light">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Room List</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Rice Freshmen</h5>
+                                    <p class="card-text">Welcome to Rice!</p>
+                                    <button type="button" class="btn btn-primary">Join</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Houston Cyclists</h5>
+                                    <p class="card-text">Exploring every interesting places by bikes!</p>
+                                    <button type="button" class="btn btn-warning">Update Restriction</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Rice Computer Science</h5>
+                                    <p class="card-text">More than coding!</p>
+                                    <button type="button"  class="btn btn-light">Joined</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Harvard Alumni</h5>
+                                    <p class="card-text">We are super heroes!</p>
+                                    <button type="button"  class="btn btn-secondary">Cannot Join</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-md-center">
+                        <button class="btn btn-success">Create a room</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <h2>My Rooms</h2>
+                            <button type="button" class="btn btn-danger btn-sm" >Leave all</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Houston Cyclists</h5>
+                                    <button type="button" class="btn btn-danger btn-sm" >Leave</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <p>Gene <span class="badge badge-primary">Owner</span></p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Alex</p>
+                                                    <button class="btn btn-success btn-sm">Chat</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Allen</p>
+                                                    <button class="btn btn-success btn-sm">Chat</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Bob</p>
+                                                    <button class="btn btn-success btn-sm">Chat</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Candy</p>
+                                                    <button class="btn btn-warning btn-sm">Chatting</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="alert alert-primary" role="alert">
+                                    <p>Gene broadcasts: Cycling TMC at 7pm tonight. Group at Rice Entrance 1</p>
+                                </div>
+
+                                <div class="alert alert-warning" role="alert">
+                                    <p>Ben has voluntarily left.</p>
+                                </div>
+                                <div class="alert alert-warning" role="alert">
+                                    <p>Charlie's connection closed.</p>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="Broadcast..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Send</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        </div>
+                        <div class="container">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">Rice Computer Science</h5>
+                                        <button type="button" class="btn btn-danger btn-sm" >Leave</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                <p>Alex <span class="badge badge-primary">Owner</span></p>
+                                                <button class="btn btn-success btn-sm">Chat</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Gene</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Allen</p>
+                                                    <button class="btn btn-success btn-sm">Chat</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Bob</p>
+                                                    <button class="btn btn-success btn-sm">Chat</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex justify-content-between">
+                                                    <p>Lucy</p>
+                                                    <button class="btn btn-warning btn-sm">Chatting</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="alert alert-primary" role="alert">
+                                        <p>Alex broadcasts: I love comp504!</p>
+                                    </div>
+
+                                    <div class="alert alert-warning" role="alert">
+                                        <p>Kevin is forcibly left.</p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5"><div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <h2>My Chats</h2>
+                        <button type="button" class="btn btn-danger btn-sm" >Leave all</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Candy via Houston Cyclists</h5>
+                                    <button type="button" class="btn btn-danger btn-sm" >End</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-primary" role="alert">
+                                    <p>Candy: Hi, what's your bike's brand?</p>
+                                </div>
+                                <div class="alert alert-success" role="alert">
+                                    <p>You: Hi Candy, it's Schwinn.</p>
+                                    <p>(Message received)</p>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="Message..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Lucy via Rice Computer Science</h5>
+                                    <button type="button" class="btn btn-danger btn-sm" >End</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-primary" role="alert">
+                                    <p>Lucy: Hi, do you know Mack?</p>
+                                </div>
+                                <div class="alert alert-success" role="alert">
+                                    <p>You: Yes, sure. He is nice.</p>
+                                    <p>(Message is sending)</p>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="Message..." aria-label="Recipient's username" aria-describedby="button-addon2">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+
+</body>
+</html>
