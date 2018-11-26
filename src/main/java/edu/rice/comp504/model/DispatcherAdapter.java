@@ -1,9 +1,11 @@
 package edu.rice.comp504.model;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
@@ -101,6 +103,8 @@ public class DispatcherAdapter extends Observable {
         for(ChatRoom room: rooms.values()) {
             if(room.applyFilter(my_user)) my_user.addRoom(room);
         }
+
+
 
         return my_user;
     }
@@ -251,10 +255,8 @@ public class DispatcherAdapter extends Observable {
 
     }
 
-
-
-
-    //TODO: I question the need for this method. We don't have to allow this. (-Alex)
+    // TODO: I question the need for this method. We don't have to allow this. (-Alex)
+    // TODO: Deprecated
     /**
      * Make modification on chat room filer by the owner.
      * @param session the session of the chat room owner
@@ -270,7 +272,22 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId receiverId rawMessage"
      */
     public void sendMessage(Session session, String body) {
+        String[] info = body.split(" ");
+        int messageId = nextMessageId.getAndIncrement();
+        int roomId = Integer.parseInt(info[1]);
+        int receiverId = Integer.parseInt(info[2]);
+        int senderId = userIdFromSession.get(session);
+        String message = info[3];
 
+        Message newMsg = new Message(messageId, roomId, senderId, receiverId, message);
+        messages.put(messageId, newMsg);
+        rooms.get(roomId).storeMessage(users.get(senderId), users.get(receiverId), newMsg);
+
+        try {
+            users.get(receiverId).getSession().getRemote().sendString(getChatBoxForUser(receiverId).toJson());
+        } catch (IOException excpetion) {
+            System.out.println("Failed when sending message received confirmation!");
+        }
     }
 
     /**
@@ -279,7 +296,18 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "msgId"
      */
     public void ackMessage(Session session, String body) {
+        String[] info = body.split(" ");
+        int msgId = Integer.parseInt(info[1]);
+        Message message = messages.get(msgId);
+        message.setIsReceived(true);
 
+        int senderId = message.getSenderId();
+
+        try {
+            users.get(senderId).getSession().getRemote().sendString(getChatBoxForUser(senderId).toJson());
+        } catch (IOException excpetion) {
+            System.out.println("Failed when sending message received confirmation!");
+        }
     }
 
     /**
@@ -316,7 +344,7 @@ public class DispatcherAdapter extends Observable {
      * @return all chat room members, mapping from user id to user name
      */
     private Map<Integer, String> getUsers(int roomId) {
-        return null;
+        return rooms.get(roomId).getUsers();
     }
 
     /**
@@ -325,7 +353,7 @@ public class DispatcherAdapter extends Observable {
      * @return notifications of the chat room
      */
     private List<String> getNotifications(int roomId) {
-        return null;
+        return rooms.get(roomId).getNotifications();
     }
 
     /**
@@ -336,6 +364,15 @@ public class DispatcherAdapter extends Observable {
      * @return chat history between user A and user B at a chat room
      */
     private List<Message> getChatHistory(int roomId, int userAId, int userBId) {
-        return null;
+        String targetKey = Math.min(userAId, userBId) + "&" + Math.max(userAId, userBId);
+        return rooms.get(roomId).getChatHistory().get(targetKey);
+    }
+
+    public AResponse getRoomsForUser(int userId) {
+
+    }
+
+    public AResponse getChatBoxForUser(int userId) {
+
     }
 }

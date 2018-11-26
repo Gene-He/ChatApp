@@ -33,12 +33,12 @@ class AddRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
-        if (chatRoom.getOwner().getId() == context.getId())
-            return;
         // Only if this user is qualified for this newly created room, we add this new room to this user's available room list.
         if (chatRoom.applyFilter(context)) {
-            // Update this user with newly created room.
-            context.addRoom(chatRoom);
+            // Update this user with newly created room if this room is not in this user's available list.
+            if (!context.getAvailableRoomIds().stream().anyMatch(roomdId -> roomdId == chatRoom.getId())) {
+                context.addRoom(chatRoom);
+            }
 
             // Constructs a UserRoomsResponse and send it to this user.
             AResponse res = new UserRoomsResponse("UserRooms", context.getId(), new HashSet<>(context.getJoinedRoomIds()), new HashSet<>(context.getAvailableRoomIds()));

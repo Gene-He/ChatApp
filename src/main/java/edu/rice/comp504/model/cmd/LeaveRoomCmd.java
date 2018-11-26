@@ -1,5 +1,6 @@
 package edu.rice.comp504.model.cmd;
 
+import edu.rice.comp504.controller.ChatAppController;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 import edu.rice.comp504.model.res.AResponse;
@@ -48,8 +49,8 @@ class LeaveRoomCmd implements IUserCmd {
                 // Leaving user is the owner of this room or there are no users left in this room.
                 user.removeRoom(chatRoom);
             } else if (isInJoinedRoom) {
-                // Constructs a RoomUsersResponse.
-                AResponse res = new RoomUsersResponse("RoomUsers", chatRoom.getId(), chatRoom.getUsers().keySet());
+                // Constructs a response for rooms.
+                AResponse res = ChatAppController.getDispatcher().getRoomsForUser(context.getId());
 
                 try {
                     context.getSession().getRemote().sendString(res.toJson());
@@ -57,11 +58,11 @@ class LeaveRoomCmd implements IUserCmd {
                     System.out.println("Failed when trying to update user list of roomId: " + chatRoom.getId() + " for userId: " + context.getId());
                 }
 
-                // Constructs a RoomNotificationsResponse to notify users in the same room why that user left.
-                AResponse notficationsResponse = new RoomNotficationsResponse("RoomNotifications", chatRoom.getId(), chatRoom.getNotifications());
+                // Constructs a response for chatbox.
+                AResponse res1 = ChatAppController.getDispatcher().getChatBoxForUser(context.getId());
 
                 try {
-                    context.getSession().getRemote().sendString(notficationsResponse.toJson());
+                    context.getSession().getRemote().sendString(res1.toJson());
                 } catch (IOException exception) {
                     System.out.println("Failed when trying to notify leaving reason: "+ chatRoom.getId() + " for userId: " + context.getId());
                 }

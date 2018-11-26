@@ -1,5 +1,6 @@
 package edu.rice.comp504.model.cmd;
 
+import edu.rice.comp504.controller.ChatAppController;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 import edu.rice.comp504.model.res.AResponse;
@@ -38,13 +39,16 @@ class JoinRoomCmd implements IUserCmd {
         boolean isInJoinedRoom = false;
         isInJoinedRoom = context.getJoinedRoomIds().stream().anyMatch(roomId -> roomId == chatRoom.getId());
 
-        //Constructs a RoomUsersResponse.
-        AResponse res = new RoomUsersResponse("RoomUsers", chatRoom.getId(), chatRoom.getUsers().keySet());
+        if (isInJoinedRoom) {
+            //Constructs a RoomUsersResponse.
+            AResponse res = ChatAppController.getDispatcher().getRoomsForUser(context.getId());
 
-        try {
-            context.getSession().getRemote().sendString(res.toJson());
-        } catch (IOException exception) {
-            System.out.println("Failed when trying to update user list of roomId: " + chatRoom.getId() + " for userId: " + context.getId());
+            try {
+                context.getSession().getRemote().sendString(res.toJson());
+            } catch (IOException exception) {
+                System.out.println("Failed when trying to update user list of roomId: " + chatRoom.getId() + " for userId: " + context.getId());
+            }
         }
+
     }
 }

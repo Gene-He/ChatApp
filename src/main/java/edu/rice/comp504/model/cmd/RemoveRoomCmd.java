@@ -1,8 +1,11 @@
 package edu.rice.comp504.model.cmd;
 
+import edu.rice.comp504.controller.ChatAppController;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
+import edu.rice.comp504.model.res.AResponse;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 class RemoveRoomCmd implements IUserCmd {
@@ -32,7 +35,23 @@ class RemoveRoomCmd implements IUserCmd {
         if (isInJoinedOrAvailableRoom) {
             context.removeRoom(chatRoom);
 
-            // TODO: Do we need to notify this context user to update its rooms? what to do if this user has opened this room in front end?
+            // Constructs a response for rooms.
+            AResponse res = ChatAppController.getDispatcher().getRoomsForUser(context.getId());
+
+            try {
+                context.getSession().getRemote().sendString(res.toJson());
+            } catch (IOException exception) {
+                System.out.println("Failed when trying to update user list of roomId: " + chatRoom.getId() + " for userId: " + context.getId());
+            }
+
+            // Constructs a response for chatbox.
+            AResponse res1 = ChatAppController.getDispatcher().getChatBoxForUser(context.getId());
+
+            try {
+                context.getSession().getRemote().sendString(res1.toJson());
+            } catch (IOException exception) {
+                System.out.println("Failed when trying to notify leaving reason: "+ chatRoom.getId() + " for userId: " + context.getId());
+            }
         }
     }
 }

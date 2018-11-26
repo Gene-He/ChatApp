@@ -162,6 +162,7 @@ public class ChatRoom extends Observable {
             return false;
         }
         userNameFromUserId.remove(user.getId());
+        freeChatHistory(user);
         notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
         notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
@@ -178,7 +179,7 @@ public class ChatRoom extends Observable {
      * Map the single message body with key value (senderID&receiverID)
      */
     public void storeMessage(User sender, User receiver, Message message) {
-        String key = sender.getId() + "," + receiver.getId();
+        String key = Math.min(sender.getId(), receiver.getId()) + "&" + Math.max(sender.getId(), receiver.getId());
         if (!chatHistory.containsKey(key)){
             chatHistory.put(key,new ArrayList<>());
         }
