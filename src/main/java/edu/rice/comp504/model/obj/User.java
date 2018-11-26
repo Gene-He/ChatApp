@@ -1,5 +1,6 @@
 package edu.rice.comp504.model.obj;
 
+import edu.rice.comp504.model.cmd.IUserCmd;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.util.*;
@@ -118,7 +119,10 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void addRoom(ChatRoom room) {
+        int roomId=room.getId();
 
+        if(room.applyFilter(this))
+            this.availableRoomIds.add(roomId);
     }
 
     /**
@@ -126,7 +130,13 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void removeRoom(ChatRoom room) {
+        int roomId=room.getId();
 
+        if (joinedRoomIds.contains(roomId))
+            this.joinedRoomIds.remove(roomId);
+
+        if (availableRoomIds.contains(roomId))
+            this.availableRoomIds.remove(roomId);
     }
 
     /**
@@ -134,7 +144,9 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void moveToJoined(ChatRoom room) {
-
+        int roomId=room.getId();
+        this.availableRoomIds.remove(roomId);
+        this.joinedRoomIds.add(roomId);
     }
 
     /**
@@ -142,7 +154,10 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void moveToAvailable(ChatRoom room) {
+        int roomId=room.getId();
 
+        this.availableRoomIds.add(roomId);
+        this.joinedRoomIds.remove(roomId);
     }
 
     /**
@@ -150,7 +165,7 @@ public class User implements Observer {
      * */
     @Override
     public void update(Observable o, Object arg) {
-
+        ((IUserCmd) arg).execute(this);
     }
 
 }
