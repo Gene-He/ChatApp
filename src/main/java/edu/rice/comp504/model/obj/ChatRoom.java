@@ -137,6 +137,8 @@ public class ChatRoom extends Observable {
         this.schools = schools;
     }
 
+    public void addNotification(String s) {notifications.add(s);}
+
     /**
      * If user satisfy all restrictions and has the room in his available room list
      * Create a user joined notification message and then add user into the observer list
@@ -165,6 +167,8 @@ public class ChatRoom extends Observable {
         freeChatHistory(user);
         notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
         notifications.add(user.getName()+ " left this room because " + reason);
+        //notifyObservers(new LeaveRoomCmd("leave,"+id));
+        //notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
         return true;
     }
@@ -179,7 +183,12 @@ public class ChatRoom extends Observable {
      * Map the single message body with key value (senderID&receiverID)
      */
     public void storeMessage(User sender, User receiver, Message message) {
+<<<<<<< HEAD
         String key = Math.min(sender.getId(), receiver.getId()) + "&" + Math.max(sender.getId(), receiver.getId());
+=======
+        //TODO: need small&large
+        String key = sender.getId() + "," + receiver.getId();
+>>>>>>> b464014185708fa2f88d82d1b53c5e042ec7fcba
         if (!chatHistory.containsKey(key)){
             chatHistory.put(key,new ArrayList<>());
         }

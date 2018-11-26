@@ -104,7 +104,11 @@ public class DispatcherAdapter extends Observable {
             if(room.applyFilter(my_user)) my_user.addRoom(room);
         }
 
+<<<<<<< HEAD
 
+=======
+        //TODO: call our two methods for sending room info and sending chat info
+>>>>>>> b464014185708fa2f88d82d1b53c5e042ec7fcba
 
         return my_user;
     }
@@ -136,8 +140,6 @@ public class DispatcherAdapter extends Observable {
 
         if(!my_room.applyFilter(my_user)) {
 
-            //Todo: rejection message
-
             return null;
 
         } else {
@@ -150,6 +152,7 @@ public class DispatcherAdapter extends Observable {
 
             IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room);
             notifyObservers(cmd);
+            //TODO: send room info to all clients
 
             return my_room;
         }
@@ -163,11 +166,14 @@ public class DispatcherAdapter extends Observable {
 
         //get this user
         User my_user = users.get(userId);
+        Session my_session = my_user.getSession();
         List<Integer> joined_rooms = my_user.getJoinedRoomIds();
 
         //remove user from all rooms
         for(Integer room_id : joined_rooms) {
-            rooms.get(room_id).removeUser(my_user, "user logged out.")
+            rooms.get(room_id).addNotification(my_user.getName()+" is logging out.");
+            leaveRoom(my_session, "leave "+room_id);
+            // rooms.get(room_id).removeUser(my_user, "user logged out.")
         }
 
         //remove user from map
@@ -236,7 +242,7 @@ public class DispatcherAdapter extends Observable {
     public void leaveRoom(Session session, String body) {
 
         //get room from body
-        String[] info = body.split(",");
+        String[] info = body.split(" ");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -250,9 +256,19 @@ public class DispatcherAdapter extends Observable {
         //remove user as observer for this room, broadcast message to room
         my_room.removeUser(my_user, "user left voluntarily.");
 
-        //delete room if this user is the owner
-        if(my_room.getUsers().isEmpty()) unloadRoom(roomId);
 
+        //delete room if this user is the owner
+        if(my_room.getOwner() == my_user) unloadRoom(roomId);
+
+    }
+
+    public void voluntaryLeaveRoom(Session session, String body) {
+
+        leaveRoom(session, body);
+    }
+    public void ejectFromRoom(Session session, String body){
+
+        leaveRoom(session, body);
     }
 
     // TODO: I question the need for this method. We don't have to allow this. (-Alex)
