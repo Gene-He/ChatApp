@@ -2,8 +2,7 @@ package edu.rice.comp504.model.obj;
 
 import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.DispatcherAdapter;
-import edu.rice.comp504.model.cmd.JoinRoomCmd;
-import edu.rice.comp504.model.cmd.LeaveRoomCmd;
+import edu.rice.comp504.model.cmd.CmdFactory;
 
 import java.util.*;
 import java.util.Observable;
@@ -143,11 +142,10 @@ public class ChatRoom extends Observable {
      * Create a user joined notification message and then add user into the observer list
      */
     public boolean addUser(User user) {
-        //TODO: Modify the command message
         if (userNameFromUserId.containsKey(user.getId()) && !applyFilter(user)){
             return false;
         }
-        notifyObservers(new JoinRoomCmd("join,"+id));
+        notifyObservers(CmdFactory.makeJoinRoomCmd(this,user));
         userNameFromUserId.put(user.getId(),user.getName());
         notifications.add(user.getName()+ " joined this room");
         addObserver(user);
@@ -160,12 +158,11 @@ public class ChatRoom extends Observable {
      * Delete user from observer list
      */
     public boolean removeUser(User user, String reason) {
-        //TODO: Modify the command message
         if (!userNameFromUserId.containsKey(user.getId())){
             return false;
         }
         userNameFromUserId.remove(user.getId());
-        notifyObservers(new LeaveRoomCmd("leave,"+id));
+        notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
         notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
         return true;
