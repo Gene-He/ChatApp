@@ -30,6 +30,8 @@ function sendMessage(msg) {
 function updateChatRoom(data) {
     console.log("Receiving: " + data);
     var message = JSON.parse(data);
+    console.log("Parsed: ");
+    console.log(message);
     console.log("Receiving: " + message);
     if(message['type'] === "NewUserResponse"){
 

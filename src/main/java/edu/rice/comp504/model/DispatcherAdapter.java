@@ -104,7 +104,7 @@ public class DispatcherAdapter extends Observable {
         } catch (IOException exception) {
             System.out.println("Failed when sending room information for new user on login!");
         }
-
+        addObserver(user);
         return user;
     }
 
@@ -144,14 +144,20 @@ public class DispatcherAdapter extends Observable {
 
             //This command now has the DA as a member, and will perform the session.getRemote to send the response.
             IUserCmd cmd = CmdFactory.makeAddRoomCmd(room, this);
+            setChanged();
             notifyObservers(cmd);
         }
         else {
             room = null;
         }
 
+        // TODO: we need to send this response to all users
         try {
-            session.getRemote().sendString(getRoomsForUser(userId).toJson());
+            for (int id : users.keySet()) {
+                System.out.println("Send create room response for user: " + users.get(id).getName());
+                System.out.println(users.get(id).getAvailableRoomIds().size());
+                users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
+            }
         }
         catch (IOException exception) {
             System.out.println("Failed when sending room information upon user creating room!");
@@ -194,6 +200,7 @@ public class DispatcherAdapter extends Observable {
 
         //This command now has the DA as a member, and will perform the session.getRemote to send the response.
         IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId), this);
+        setChanged();
         notifyObservers(cmd);
 
         //delete room from map.
@@ -398,6 +405,31 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "type roomId [senderId] [receiverId]"
      */
     public void query(Session session, String body) {
+        System.out.println("Query chatBox message: " + body);
+
+        String[] info = body.split("//|");
+        int roomId = Integer.parseInt(info[2]);
+        int thisUserId = getUserIdFromSession(session);
+        int anotherUserId = Integer.parseInt(info[3]);
+
+        String key = Math.min(thisUserId, anotherUserId) + "&" + Math.max(thisUserId, anotherUserId);
+        Map<String, List<Message>> chatHistory = rooms.get(roomId).getChatHistory();
+        List<Message> dialogue = null;
+        if (!chatHistory.containsKey(key)) {
+            dialogue = new ArrayList<>();
+        } else {
+            dialogue = chatHistory.get(key);
+        }
+        ChatBox chatBox = new ChatBox(roomId, rooms.get(roomId).getName(), getAnotherUserId(thisUserId, key), getAnotherUserName(thisUserId, key), dialogue);
+        List<ChatBox> res = new ArrayList<>();
+        res.add(chatBox);
+        AResponse response = new UserChatHistoryResponse("UserChatHistory", users.get(thisUserId).getName(), res);
+
+        try {
+            session.getRemote().sendString(response.toJson());
+        } catch (IOException exception) {
+            System.out.println("Failed when sending query chatbox history back to user");
+        }
 
     }
 
