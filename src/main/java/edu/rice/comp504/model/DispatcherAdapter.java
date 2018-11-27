@@ -86,7 +86,8 @@ public class DispatcherAdapter extends Observable {
      * @return the new user that has been loaded
      */
     public User loadUser(Session session, String body) {
-        String[] tokens = body.split("|");
+        System.out.println("user login message: " + body);
+        String[] tokens = body.split("\\|");
         int userId = getUserIdFromSession(session);
         User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
                 tokens[3], tokens[4], null);
@@ -116,6 +117,7 @@ public class DispatcherAdapter extends Observable {
      */
     public ChatRoom loadRoom(Session session, String body) {
         //get this user
+        System.out.println("create room message: " + body);
         int userId = getUserIdFromSession(session);
         User user = users.get(userId);
 
@@ -124,7 +126,7 @@ public class DispatcherAdapter extends Observable {
         }
 
         //check the specifications in the body
-        String[] info = body.split("|");
+        String[] info = body.split("\\|");
         Preconditions.checkArgument(info.length == 6 && info[0].equals("create"), "Illegal create room message format: %s", body);
         String roomName = info[1];
         int ageLower = Integer.parseInt(info[2]);
@@ -205,8 +207,9 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void joinRoom(Session session, String body) {
+        System.out.println("join room message: " + body);
         //get room from body
-        String[] info = body.split("|");
+        String[] info = body.split("\\|");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -242,8 +245,9 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void leaveRoom(Session session, String body) {
+        System.out.println("leave room message: " + body);
         //get room from body
-        String[] info = body.split("|");
+        String[] info = body.split("\\|");
         Preconditions.checkArgument((info.length == 2 || info.length == 3) && info[0].equals("leave"), "Illegal leave room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -308,7 +312,8 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId receiverId rawMessage"
      */
     public void sendMessage(Session session, String body) {
-        String[] info = body.split("|");
+        System.out.println("sendMessage message: " + body);
+        String[] info = body.split("\\|");
         int messageId = nextMessageId.getAndIncrement();
         int roomId = Integer.parseInt(info[1]);
         int receiverId = Integer.parseInt(info[2]);
@@ -339,7 +344,8 @@ public class DispatcherAdapter extends Observable {
      * body string format: "broadcast [roomId] [message]"
      */
     public void broadcastMessage(Session session, String body) {
-        String[] info = body.split("|");
+        System.out.println("broadcast message: " + body);
+        String[] info = body.split("\\|");
         int roomId = Integer.parseInt(info[1]);
         String broadCastMsg = info[3];
 
@@ -371,7 +377,7 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "msgId"
      */
     public void ackMessage(Session session, String body) {
-        String[] info = body.split("|");
+        String[] info = body.split("\\|");
         int msgId = Integer.parseInt(info[1]);
         Message message = messages.get(msgId);
         message.setIsReceived(true);
