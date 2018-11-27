@@ -183,14 +183,10 @@ public class ChatRoom extends Observable {
      * Map the single message body with key value (senderID&receiverID)
      */
     public void storeMessage(User sender, User receiver, Message message) {
-<<<<<<< HEAD
         String key = Math.min(sender.getId(), receiver.getId()) + "&" + Math.max(sender.getId(), receiver.getId());
-=======
-        //TODO: need small&large
-        String key = sender.getId() + "," + receiver.getId();
->>>>>>> b464014185708fa2f88d82d1b53c5e042ec7fcba
+
         if (!chatHistory.containsKey(key)){
-            chatHistory.put(key,new ArrayList<>());
+            chatHistory.put(key, new ArrayList<>());
         }
         chatHistory.get(key).add(message);
     }

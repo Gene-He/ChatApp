@@ -4,8 +4,6 @@ import edu.rice.comp504.controller.ChatAppController;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 import edu.rice.comp504.model.res.AResponse;
-import edu.rice.comp504.model.res.RoomNotficationsResponse;
-import edu.rice.comp504.model.res.RoomUsersResponse;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -35,37 +33,14 @@ class LeaveRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
-        if (context.getId() == user.getId()) {
-            return;
-        }
         boolean isInJoinedOrAvailableRoom = false;
         isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
-        boolean isInJoinedRoom = false;
-        isInJoinedRoom = context.getJoinedRoomIds().stream().anyMatch(roomId -> roomId == chatRoom.getId());
 
         if (isInJoinedOrAvailableRoom) {
             // This context user has this room.
             if (user.getId() == chatRoom.getOwner().getId() || chatRoom.getUsers().size() == 0) {
                 // Leaving user is the owner of this room or there are no users left in this room.
                 user.removeRoom(chatRoom);
-            } else if (isInJoinedRoom) {
-                // Constructs a response for rooms.
-                AResponse res = ChatAppController.getDispatcher().getRoomsForUser(context.getId());
-
-                try {
-                    context.getSession().getRemote().sendString(res.toJson());
-                } catch (IOException exception) {
-                    System.out.println("Failed when trying to update user list of roomId: " + chatRoom.getId() + " for userId: " + context.getId());
-                }
-
-                // Constructs a response for chatbox.
-                AResponse res1 = ChatAppController.getDispatcher().getChatBoxForUser(context.getId());
-
-                try {
-                    context.getSession().getRemote().sendString(res1.toJson());
-                } catch (IOException exception) {
-                    System.out.println("Failed when trying to notify leaving reason: "+ chatRoom.getId() + " for userId: " + context.getId());
-                }
             }
         }
     }

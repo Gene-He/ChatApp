@@ -39,16 +39,6 @@ class AddRoomCmd implements IUserCmd {
             if (!context.getAvailableRoomIds().stream().anyMatch(roomdId -> roomdId == chatRoom.getId())) {
                 context.addRoom(chatRoom);
             }
-
-            // Constructs a UserRoomsResponse and send it to this user.
-            AResponse res = new UserRoomsResponse("UserRooms", context.getId(), new HashSet<>(context.getJoinedRoomIds()), new HashSet<>(context.getAvailableRoomIds()));
-
-            try {
-                context.getSession().getRemote().sendString(res.toJson());
-            } catch (IOException exception) {
-                // Just print out what happened without trying again.
-                System.out.println("Failed when sending updated rooms to userId: " + context.getId());
-            }
         }
     }
 }

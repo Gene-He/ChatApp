@@ -104,11 +104,7 @@ public class DispatcherAdapter extends Observable {
             if(room.applyFilter(my_user)) my_user.addRoom(room);
         }
 
-<<<<<<< HEAD
-
-=======
         //TODO: call our two methods for sending room info and sending chat info
->>>>>>> b464014185708fa2f88d82d1b53c5e042ec7fcba
 
         return my_user;
     }
@@ -131,12 +127,9 @@ public class DispatcherAdapter extends Observable {
         String roomName = info[1];
         int ageLower = Integer.parseInt(info[2]);
         int ageUpper = Integer.parseInt(info[3]);
-        Set locations = Collections.synchronizedSet(new HashSet<>(Arrays.asList(info[4].split(","))));
-        Set schools = Collections.synchronizedSet(new HashSet<>(Arrays.asList(info[5].split(","))));
 
         //construct the room
-        advanceCounter(this.nextRoomId);
-        ChatRoom my_room = new ChatRoom(roomID, roomName, my_user, ageLower, ageUpper, locations, schools, this);
+        ChatRoom my_room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, my_user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
 
         if(!my_room.applyFilter(my_user)) {
 
@@ -295,6 +288,12 @@ public class DispatcherAdapter extends Observable {
         int senderId = userIdFromSession.get(session);
         String message = info[3];
 
+        // TODO: check if this message contain unallowed words
+        if (Arrays.asList(message.split(" ")).contains("hate")) {
+            ejectFromRoom(session, "leave " + roomId);
+        }
+
+        // Update entities in DA.
         Message newMsg = new Message(messageId, roomId, senderId, receiverId, message);
         messages.put(messageId, newMsg);
         rooms.get(roomId).storeMessage(users.get(senderId), users.get(receiverId), newMsg);
