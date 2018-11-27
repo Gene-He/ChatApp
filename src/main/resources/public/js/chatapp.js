@@ -2,6 +2,8 @@
 
 const webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/chatapp");
 var chattingUser = "";
+var username = "";
+var userId = "";
 /**
  * Entry point into chat room
  */
@@ -48,6 +50,8 @@ function updateChatRoom(data) {
         updateHelloUser(message['username']);
         updateRoomList(message);
         updateMyRooms(message);
+        username = message['username'];
+        userId = message['userId'];
     }
 }
 
@@ -127,8 +131,8 @@ function updateMyRooms(message){
     $(".btn-start-chat").click(function (event) {
        // // query userChatHistory [roomId] [anotherUserId]
         var roomInfo = getChatRoomNameFromUser(event.target);
-       //  var user_str = "query|userChatHistory|" + roomInfo.id + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
-       //  sendMessage(user_str);
+        var user_str = "query|userChatHistory|" + roomInfo.id + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
+        sendMessage(user_str);
         openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),roomInfo.name);
     });
 }
@@ -204,12 +208,14 @@ function createNotificationBlock(room){
         block += '<div class="alert alert-primary" role="alert">\ '+
                      '<p>' +notifications[i] + '</p>\</div>';
     }
-    block += '<div class="input-group mb-3">\
+    if (room["owner"]["id"] == userId) {
+        block += '<div class="input-group mb-3">\
                  <input type="text" class="form-control" placeholder="Broadcast..." aria-label="Recipient\'s username" aria-describedby="button-addon2">\
                  <div class="input-group-append">\
-                     <button class="btn btn-outline-secondary" type="button" id="button-addon2 " onclick=sendBroadCast('+room["id"]+',this.parentNode.parentNode)>Send</button>\
+                     <button class="btn btn-outline-secondary" type="button" id="button-addon2 " onclick=sendBroadCast(' + room["id"] + ',this.parentNode.parentNode)>Send</button>\
                  </div>\
                </div>'
+    }
     return block;
 }
 
