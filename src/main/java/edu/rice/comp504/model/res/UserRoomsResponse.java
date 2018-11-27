@@ -7,6 +7,7 @@ import java.util.Set;
 public class UserRoomsResponse extends AResponse {
 
     private int userId;
+    private String username;
     private Set<ChatRoom> ownedRooms;
     private Set<ChatRoom> joinedRooms;
     private Set<ChatRoom> availableRooms;
@@ -16,9 +17,10 @@ public class UserRoomsResponse extends AResponse {
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public UserRoomsResponse(String type, int userId, Set<ChatRoom> ownedRooms, Set<ChatRoom> joinedRooms, Set<ChatRoom> availableRooms) {
+    public UserRoomsResponse(String type, int userId, String username, Set<ChatRoom> ownedRooms, Set<ChatRoom> joinedRooms, Set<ChatRoom> availableRooms) {
         super(type);
         this.userId = userId;
+        this.username = username;
         this.ownedRooms = ownedRooms;
         this.joinedRooms = joinedRooms;
         this.availableRooms = availableRooms;
@@ -30,6 +32,14 @@ public class UserRoomsResponse extends AResponse {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Set<ChatRoom> getOwnedRooms() {

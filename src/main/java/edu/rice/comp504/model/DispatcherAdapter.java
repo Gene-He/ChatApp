@@ -443,7 +443,7 @@ public class DispatcherAdapter extends Observable {
         Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
 
-        return new UserRoomsResponse("UserRooms", userId, ownedRooms, joinedRooms, availableRooms);
+        return new UserRoomsResponse("UserRooms", userId, users.get(userId).getName(), ownedRooms, joinedRooms, availableRooms);
     }
 
     public AResponse getChatBoxForUser(int userId) {
@@ -453,7 +453,7 @@ public class DispatcherAdapter extends Observable {
 
             room.getChatHistory().entrySet().stream().filter(entry -> isRelevant(userId, entry.getKey())).forEach(entry -> chatBoxes.add(new ChatBox(roomId, room.getName(), getAnotherUserId(userId, entry.getKey()), getAnotherUserName(userId, entry.getKey()), entry.getValue() )));
         }
-        return new UserChatHistoryResponse("UserChatHistory", chatBoxes);
+        return new UserChatHistoryResponse("UserChatHistory", users.get(userId).getName(), chatBoxes);
     }
 
     private boolean isRelevant(int userId, String key) {
