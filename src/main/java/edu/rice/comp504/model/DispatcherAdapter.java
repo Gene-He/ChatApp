@@ -137,6 +137,8 @@ public class DispatcherAdapter extends Observable {
 
         if(true/*room.applyFilter(user)*/) { // TODO: revert this after testing
             rooms.put(room.getId(), room);
+            //update the room
+            room.getUsers().put(user.getId(), user.getName());
 
             //update user's join list
             user.addRoom(room);
@@ -155,7 +157,6 @@ public class DispatcherAdapter extends Observable {
         try {
             for (int id : users.keySet()) {
                 System.out.println("Send create room response for user: " + users.get(id).getName());
-                System.out.println(users.get(id).getAvailableRoomIds().size());
                 users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
             }
         }
@@ -237,8 +238,13 @@ public class DispatcherAdapter extends Observable {
             //add user as an observer of the room
             my_room.addUser(my_user);
 
+            // TODO: Send responses for all users in this room.
             try {
-                session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+                //session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+                for (int id : my_room.getUsers().keySet()) {
+                    System.out.println("Send Join room response for user: " + users.get(id).getName());
+                    users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
+                }
             }
             catch (IOException exception) {
                 System.out.println("Failed when sending room information upon user joining room!");
@@ -279,9 +285,13 @@ public class DispatcherAdapter extends Observable {
         }
 
 
+        // TODO: send responses to all users in this room.
         try {
-            session.getRemote().sendString(getChatBoxForUser(my_user.getId()).toJson());
-            session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+            for (int id : my_room.getUsers().keySet()) {
+                System.out.println("Send Join room and chatBox response for user: " + users.get(id).getName());
+                users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
+                users.get(id).getSession().getRemote().sendString(getChatBoxForUser(id).toJson());
+            }
         } catch (IOException excpetion) {
             System.out.println("Failed when sending room information for user leaving room!");
         }
@@ -368,7 +378,7 @@ public class DispatcherAdapter extends Observable {
 
         // Send back response to all users in this room.
         rooms.get(roomId).getUsers().keySet().stream().forEach(userId -> constructAndSendResponseForUser(userId));
-        constructAndSendResponseForUser(rooms.get(roomId).getOwner().getId());
+        // constructAndSendResponseForUser(rooms.get(roomId).getOwner().getId());
     }
 
     private void constructAndSendResponseForUser(int userId) {
@@ -408,7 +418,7 @@ public class DispatcherAdapter extends Observable {
         System.out.println("Query chatBox message: " + body);
 
         String[] info = body.split("\\|");
-        
+
         int roomId = Integer.parseInt(info[2]);
         int thisUserId = getUserIdFromSession(session);
         int anotherUserId = Integer.parseInt(info[3]);
