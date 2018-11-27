@@ -355,11 +355,16 @@ function getChatHistory(chatHistory){
     }
     var history = "";
     for (var i = 0; i < chatHistory.length; i++){
+
         if (chatHistory[i]["senderId"] == userId ){
+            var ackMsg = chatHistory[i]["isReceived"] ? "(is received)" : "";
             history += '<div class="alert alert-primary" role="alert">' +
-                           '<p>' + chatHistory[i].message +  '</p>\n' +
+                           '<p>' + chatHistory[i].message + ackMsg + '</p>\n' +
                        '</div>'
         }else {
+            if (!chatHistory[i]["isReceived"]){
+                sendMessage("ack|" + chatHistory[i]["id"]);
+            }
             history += '<div class="alert alert-success" role="alert">' +
                 '<p>' + chatHistory[i].message +  '</p>\n' +
                 '</div>'
