@@ -1,7 +1,6 @@
 package edu.rice.comp504.model;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -334,7 +333,15 @@ public class DispatcherAdapter extends Observable {
         rooms.get(roomId).getNotifications().add(broadCastMsg);
 
         // Send back response to all users in this room.
-        rooms.get(roomId).getUsers().keySet().stream().forEach(userId -> users.get(userId).getSession().getRemote().sendString(getRoomsForUser(userId).toJson()));
+        rooms.get(roomId).getUsers().keySet().stream().forEach(userId -> constructAndSendResponseForUser(userId));
+    }
+
+    private void constructAndSendResponseForUser(int userId) {
+        try {
+            users.get(userId).getSession().getRemote().sendString(getRoomsForUser(userId).toJson());
+        } catch (IOException exception) {
+            System.out.println("Failed when send updated rooms for user: "+userId);
+        }
     }
 
     /**
