@@ -1,23 +1,27 @@
 package edu.rice.comp504.model.res;
 
+import edu.rice.comp504.model.obj.ChatRoom;
+
 import java.util.Set;
 
 public class UserRoomsResponse extends AResponse {
 
     private int userId;
-    private Set<Integer> joinedRoomIds;
-    private Set<Integer> availableRoomIds;
+    private Set<ChatRoom> ownedRooms;
+    private Set<ChatRoom> joinedRooms;
+    private Set<ChatRoom> availableRooms;
 
     /**
      * Constructor.
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public UserRoomsResponse(String type, int userId, Set<Integer> joinedRoomIds, Set<Integer> availableRoomIds) {
+    public UserRoomsResponse(String type, int userId, Set<ChatRoom> ownedRooms, Set<ChatRoom> joinedRooms, Set<ChatRoom> availableRooms) {
         super(type);
         this.userId = userId;
-        this.joinedRoomIds = joinedRoomIds;
-        this.availableRoomIds = availableRoomIds;
+        this.ownedRooms = ownedRooms;
+        this.joinedRooms = joinedRooms;
+        this.availableRooms = availableRooms;
     }
 
     public int getUserId() {
@@ -28,19 +32,27 @@ public class UserRoomsResponse extends AResponse {
         this.userId = userId;
     }
 
-    public Set<Integer> getJoinedRoomIds() {
-        return joinedRoomIds;
+    public Set<ChatRoom> getOwnedRooms() {
+        return ownedRooms;
     }
 
-    public void setJoinedRoomIds(Set<Integer> joinedRoomIds) {
-        this.joinedRoomIds = joinedRoomIds;
+    public void setOwnedRooms(Set<ChatRoom> ownedRooms) {
+        this.ownedRooms = ownedRooms;
     }
 
-    public Set<Integer> getAvailableRoomIds() {
-        return availableRoomIds;
+    public Set<ChatRoom> getJoinedRooms() {
+        return joinedRooms;
     }
 
-    public void setAvailableRoomIds(Set<Integer> availableRoomIds) {
-        this.availableRoomIds = availableRoomIds;
+    public void setJoinedRooms(Set<ChatRoom> joinedRooms) {
+        this.joinedRooms = joinedRooms;
+    }
+
+    public Set<ChatRoom> getAvailableRooms() {
+        return availableRooms;
+    }
+
+    public void setAvailableRooms(Set<ChatRoom> availableRooms) {
+        this.availableRooms = availableRooms;
     }
 }

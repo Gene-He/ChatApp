@@ -166,7 +166,6 @@ public class ChatRoom extends Observable {
         userNameFromUserId.remove(user.getId());
         freeChatHistory(user);
         notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
-        notifications.add(user.getName()+ " left this room because " + reason);
         //notifyObservers(new LeaveRoomCmd("leave,"+id));
         //notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
@@ -197,7 +196,7 @@ public class ChatRoom extends Observable {
     private void freeChatHistory(User user) {
         for(Iterator<Map.Entry<String,List<Message>>> it = chatHistory.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String,List<Message>> entry = it.next();
-            String[] users = entry.getKey().split(",");
+            String[] users = entry.getKey().split("&");
             Preconditions.checkArgument(users.length == 2,"Illegal key of chatHistory");
             if (users[0].equals(user.getId()) || users[1].equals(user.getId())){
                 it.remove();

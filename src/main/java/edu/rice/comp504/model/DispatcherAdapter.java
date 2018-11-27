@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import edu.rice.comp504.model.cmd.*;
+import edu.rice.comp504.model.obj.ChatBox;
 import org.eclipse.jetty.websocket.api.Session;
 
 import edu.rice.comp504.model.obj.ChatRoom;
@@ -55,18 +57,17 @@ public class DispatcherAdapter extends Observable {
      */
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
-
         advanceCounter(nextUserId.get());
-
         userIdFromSession.put(session, nextUserId.get());
-
     }
 
     /**
      * Separate method to apply operator ++, but within a synchronized method
      * @param counter
      */
-    public synchronized void advanceCounter(int counter) {counter++;}
+    public synchronized void advanceCounter(int counter) {
+        counter++;
+    }
 
 
     /**
@@ -96,7 +97,7 @@ public class DispatcherAdapter extends Observable {
     public User loadUser(Session session, String body) {
         String[] tokens = body.split(" ");
         int my_id = getUserIdFromSession(session);
-        User my_user = new User(my_id, session, tokens[0], (int)(Integer.valueOf(tokens[1])),
+        User my_user = new User(my_id, session, tokens[0], Integer.valueOf(tokens[1]),
                 tokens[2], tokens[3], null);
         users.put(my_id, my_user);
 
@@ -179,7 +180,6 @@ public class DispatcherAdapter extends Observable {
      * @param roomId the id of the chat room to be removed
      */
     public void unloadRoom(int roomId) {
-
         rooms.get(roomId).removeAllUsers();
 
         //TODO: send message to all users in the room, if there is a way to do this somewhere not inside the
@@ -201,7 +201,6 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void joinRoom(Session session, String body) {
-
         //get room from body
         String[] info = body.split(",");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
@@ -233,7 +232,6 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void leaveRoom(Session session, String body) {
-
         //get room from body
         String[] info = body.split(" ");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
@@ -291,6 +289,7 @@ public class DispatcherAdapter extends Observable {
         // TODO: check if this message contain unallowed words
         if (Arrays.asList(message.split(" ")).contains("hate")) {
             ejectFromRoom(session, "leave " + roomId);
+            return;
         }
 
         // Update entities in DA.
@@ -352,7 +351,7 @@ public class DispatcherAdapter extends Observable {
     }
 
 
-//TODO: The three methods below already exist as a methods in the chatroom class. Do we need them here for some reason?
+    //TODO: The three methods below already exist as a methods in the chatroom class. Do we need them here for some reason?
     /**
      * Get the names of all chat room members.
      * @param roomId the id of the chat room
@@ -384,10 +383,41 @@ public class DispatcherAdapter extends Observable {
     }
 
     public AResponse getRoomsForUser(int userId) {
-        return null;
+        Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+
+        return new UserRoomsResponse("UserRooms", userId, ownedRooms, joinedRooms, availableRooms);
     }
 
     public AResponse getChatBoxForUser(int userId) {
-        return null;
+        List<ChatBox> chatBoxes = new LinkedList<>();
+        for (int roomId : users.get(userId).getJoinedRoomIds()) {
+            ChatRoom room = rooms.get(roomId);
+
+            room.getChatHistory().entrySet().stream().filter(entry -> isRelevant(userId, entry.getKey())).forEach(entry -> chatBoxes.add(new ChatBox(roomId, room.getName(), getAnotherUserId(userId, entry.getKey()), getAnotherUserName(userId, entry.getKey()), entry.getValue() )));
+        }
+        return new UserChatHistoryResponse("UserChatHistory", chatBoxes);
+    }
+
+    private boolean isRelevant(int userId, String key) {
+        String[] users = key.split("&");
+        if (userId == Integer.parseInt(users[0]) || userId == Integer.parseInt(users[1]))
+            return true;
+
+        return false;
+    }
+
+    private String getAnotherUserName(int userId, String key) {
+        return users.get(getAnotherUserId(userId, key)).getName();
+    }
+
+    private int getAnotherUserId(int userId, String key) {
+        String[] users = key.split("&");
+        if (userId == Integer.parseInt(users[0])) {
+            return Integer.parseInt(users[1]);
+        } else {
+            return Integer.parseInt(users[0]);
+        }
     }
 }
