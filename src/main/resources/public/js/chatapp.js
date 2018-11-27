@@ -19,8 +19,8 @@ window.onload = function() {
     webSocket.onmessage = (event) => updateChatRoom(event.data);
 
     //test render chatroom
-    var room = document.getElementById("room-card-body");
-    room.appendChild(getRoomTemplate("New block"));
+//    var room = document.getElementById("room-card-body");
+//    room.appendChild(getRoomTemplate("New block"));
 
 }
 
@@ -125,10 +125,9 @@ function createUserInfo()
     var age = document.getElementById("reg_age").value;
     var loc = document.getElementById("reg_location").value;
     var sch =  document.getElementById("reg_school").value;
-    // Grammar: login [userName] [age] [location] [school]
-    var user_str = "login "+uname +" "+ age +" "+ loc+" " + sch;
-     sendMessage(user_str);
-
+    // Format: login [userName] [age] [location] [school]
+    var user_str = "login " + uname + " " + age + " " + loc+ " " + sch;
+    sendMessage(user_str);
 }
 
 /**

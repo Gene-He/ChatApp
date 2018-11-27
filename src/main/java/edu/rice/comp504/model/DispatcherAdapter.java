@@ -96,23 +96,24 @@ public class DispatcherAdapter extends Observable {
      */
     public User loadUser(Session session, String body) {
         String[] tokens = body.split(" ");
-        int my_id = getUserIdFromSession(session);
-        User my_user = new User(my_id, session, tokens[0], Integer.valueOf(tokens[1]),
-                tokens[2], tokens[3], null);
-        users.put(my_id, my_user);
+        int userId = getUserIdFromSession(session);
+        User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
+                tokens[3], tokens[4], null);
+
+        users.put(userId, user);
 
         for(ChatRoom room: rooms.values()) {
-            if(room.applyFilter(my_user)) my_user.addRoom(room);
+            if(room.applyFilter(user)) user.addRoom(room);
         }
 
         try {
-            session.getRemote().sendString(getChatBoxForUser(my_id).toJson());
-            session.getRemote().sendString(getRoomsForUser(my_id).toJson());
-        } catch (IOException excpetion) {
+            session.getRemote().sendString(getChatBoxForUser(userId).toJson());
+            session.getRemote().sendString(getRoomsForUser(userId).toJson());
+        } catch (IOException exception) {
             System.out.println("Failed when sending room information for new user on login!");
         }
 
-        return my_user;
+        return user;
     }
 
 
