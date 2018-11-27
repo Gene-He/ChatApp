@@ -166,7 +166,6 @@ public class ChatRoom extends Observable {
         userNameFromUserId.remove(user.getId());
         freeChatHistory(user);
         notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
-        notifications.add(user.getName()+ " left this room because " + reason);
         //notifyObservers(new LeaveRoomCmd("leave,"+id));
         //notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
