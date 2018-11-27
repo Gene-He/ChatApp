@@ -58,9 +58,9 @@ public class DispatcherAdapter extends Observable {
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
 
-        advanceCounter(this.nextUserId);
+        advanceCounter(nextUserId.get());
 
-        userIdFromSession.put(session, this.nextUserId);
+        userIdFromSession.put(session, nextUserId.get());
 
     }
 
@@ -139,7 +139,7 @@ public class DispatcherAdapter extends Observable {
 
         } else {
 
-            rooms.put(this.nextRoomId, my_room);
+            rooms.put(nextRoomId.get(), my_room);
 
             //update user's join list
             my_user.addRoom(my_room);
@@ -386,6 +386,7 @@ public class DispatcherAdapter extends Observable {
     }
 
     public AResponse getRoomsForUser(int userId) {
+<<<<<<< HEAD
         Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
@@ -423,5 +424,12 @@ public class DispatcherAdapter extends Observable {
             return Integer.parseInt(users[0]);
         }
 
+=======
+        return null;
+    }
+
+    public AResponse getChatBoxForUser(int userId) {
+        return null;
+>>>>>>> 591427552f96d3276108d67e7c20de93eb55c719
     }
 }
