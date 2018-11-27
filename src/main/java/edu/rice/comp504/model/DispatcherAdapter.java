@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import edu.rice.comp504.model.cmd.*;
+import edu.rice.comp504.model.obj.ChatBox;
 import org.eclipse.jetty.websocket.api.Session;
 
 import edu.rice.comp504.model.obj.ChatRoom;
@@ -384,10 +386,42 @@ public class DispatcherAdapter extends Observable {
     }
 
     public AResponse getRoomsForUser(int userId) {
+        Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
 
+        return new UserRoomsResponse("UserRooms", userId, ownedRooms, joinedRooms, availableRooms);
     }
 
     public AResponse getChatBoxForUser(int userId) {
+        List<ChatBox> chatBoxes = new LinkedList<>();
+        for (int roomId : users.get(userId).getJoinedRoomIds()) {
+            ChatRoom room = rooms.get(roomId);
+
+            room.getChatHistory().entrySet().stream().filter(entry -> isRelevant(userId, entry.getKey())).forEach(entry -> chatBoxes.add(new ChatBox(roomId, room.getName(), getAnotherUserId(userId, entry.getKey()), getAnotherUserName(userId, entry.getKey()), entry.getValue() )));
+        }
+        return new UserChatHistoryResponse("UserChatHistory", chatBoxes);
+    }
+
+    private boolean isRelevant(int userId, String key) {
+        String[] users = key.split("&");
+        if (userId == Integer.parseInt(users[0]) || userId == Integer.parseInt(users[1]))
+            return true;
+
+        return false;
+    }
+
+    private String getAnotherUserName(int userId, String key) {
+        return users.get(getAnotherUserId(userId, key)).getName();
+    }
+
+    private int getAnotherUserId(int userId, String key) {
+        String[] users = key.split("&");
+        if (userId == Integer.parseInt(users[0])) {
+            return Integer.parseInt(users[1]);
+        } else {
+            return Integer.parseInt(users[0]);
+        }
 
     }
 }
