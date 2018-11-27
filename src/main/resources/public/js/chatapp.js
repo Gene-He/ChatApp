@@ -246,9 +246,8 @@ function createUserTable(room){
     console.log(room);
     var map = room["userNameFromUserId"];
     var tbl  = document.createElement('table');
-    appendUser(tbl,room["owner"]["name"],room["owner"]["id"],true);
     for (var key in map){
-        appendUser(tbl,map[key],key,false);
+        appendUser(tbl,map[key],key,key==room["owner"]["id"]);
     }
     return tbl;
 }
