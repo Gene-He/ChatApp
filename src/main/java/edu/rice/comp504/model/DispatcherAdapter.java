@@ -57,16 +57,7 @@ public class DispatcherAdapter extends Observable {
      */
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
-        advanceCounter(nextUserId.get());
-        userIdFromSession.put(session, nextUserId.get());
-    }
-
-    /**
-     * Separate method to apply operator ++, but within a synchronized method
-     * @param counter
-     */
-    public synchronized void advanceCounter(int counter) {
-        counter++;
+        userIdFromSession.put(session, nextUserId.getAndIncrement());
     }
 
 
@@ -144,7 +135,7 @@ public class DispatcherAdapter extends Observable {
 
         } else {
 
-            rooms.put(nextRoomId.get(), my_room);
+            rooms.put(my_room.getId(), my_room);
 
             //update user's join list
             my_user.addRoom(my_room);
@@ -204,7 +195,7 @@ public class DispatcherAdapter extends Observable {
      */
     public void joinRoom(Session session, String body) {
         //get room from body
-        String[] info = body.split(",");
+        String[] info = body.split(" ");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -453,7 +444,7 @@ public class DispatcherAdapter extends Observable {
         Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
 
-        return new UserRoomsResponse("UserRooms", userId, ownedRooms, joinedRooms, availableRooms);
+        return new UserRoomsResponse("UserRooms", userId, users.get(userId).getName(), ownedRooms, joinedRooms, availableRooms);
     }
 
     public AResponse getChatBoxForUser(int userId) {
@@ -463,7 +454,7 @@ public class DispatcherAdapter extends Observable {
 
             room.getChatHistory().entrySet().stream().filter(entry -> isRelevant(userId, entry.getKey())).forEach(entry -> chatBoxes.add(new ChatBox(roomId, room.getName(), getAnotherUserId(userId, entry.getKey()), getAnotherUserName(userId, entry.getKey()), entry.getValue() )));
         }
-        return new UserChatHistoryResponse("UserChatHistory", chatBoxes);
+        return new UserChatHistoryResponse("UserChatHistory", users.get(userId).getName(), chatBoxes);
     }
 
     private boolean isRelevant(int userId, String key) {

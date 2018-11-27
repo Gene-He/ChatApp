@@ -6,6 +6,7 @@ import java.util.List;
 
 public class UserChatHistoryResponse extends AResponse {
 
+    private String username;
     private List<ChatBox> chatHistory;
 
     /**
@@ -13,9 +14,18 @@ public class UserChatHistoryResponse extends AResponse {
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public UserChatHistoryResponse(String type, List<ChatBox> chatHistory) {
+    public UserChatHistoryResponse(String type, String username, List<ChatBox> chatHistory) {
         super(type);
+        this.username = username;
         this.chatHistory = chatHistory;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<ChatBox> getChatHistory() {
