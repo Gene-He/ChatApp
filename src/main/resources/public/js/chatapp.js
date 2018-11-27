@@ -4,6 +4,7 @@ const webSocket = new WebSocket("ws://" + location.hostname + ":" + location.por
 var chattingUser = "";
 var username = "";
 var userId = "";
+var roomId ="";
 /**
  * Entry point into chat room
  */
@@ -135,17 +136,24 @@ function updateMyRooms(message){
     $(".btn-start-chat").click(function (event) {
        // // query userChatHistory [roomId] [anotherUserId]
         var roomInfo = getChatRoomNameFromUser(event.target);
-        var user_str = "query|userChatHistory|" + roomInfo.id + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
+        roomId = roomInfo.id;
+
+        var user_str = "query|userChatHistory|" + roomId + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
         sendMessage(user_str);
-        openChatDialog(event.target.parentElement.childNodes[0],roomInfo);
+        chattingUser = {"userId" : $(event.target.parentElement.childNodes[0]).attr("userId"), "name" : $(event.target.parentElement.childNodes[0]).attr("name")};
+        openChatDialog(chattingUser,roomInfo,null);
     });
 }
 
 function updateMyChats(message){
     console.log(message);
+    console.log(roomId + " " + chattingUser);
     message.forEach(function (chat){
-        console.log(chat);
-
+        if (chat["roomId"] == roomId && chat["anotherUserId"] == chattingUser["userId"]){
+            console.log(chat);
+            var roomInfo = {"id" : chat["roomId"],"name" : chat["roomName"]};
+            openChatDialog(chattingUser,roomInfo,chat["chatHistory"]);
+        }
     });
 
 }
@@ -257,7 +265,7 @@ function appendUser(tbl,name,id,isOwner){
     if (isOwner) {
         p.appendChild(parseDom('<span class=\"badge badge-primary\">Owner</span>'));
     }
-    if (name != chattingUser) {
+    if (name != chattingUser["name"]) {
         user.appendChild(parseDom('<button class="btn btn-success btn-sm btn-start-chat">Chat</button>'));
     }
     td.append(user);
@@ -268,22 +276,23 @@ function joinRoom(roomId){
     // Grammar: join|[roomId]
     sendMessage("join|" + roomId);
 }
-function openChatDialog(userNode,roomInfo){
+function openChatDialog(userInfo,roomInfo,chatHistory){
     var room = document.getElementById("chat-box");
     console.log(room);
     var fc = room.firstChild;
-    room.replaceChild(getChatTemplate(userNode,roomInfo,null),fc);
+    room.replaceChild(getChatTemplate(userInfo,roomInfo,chatHistory),fc);
 }
 
-function getChatTemplate(userNode,roomInfo,chatHistory){
+function getChatTemplate(userInfo,roomInfo,chatHistory){
     console.log("getChatTemplate");
-    console.log(userNode);
+    console.log(userInfo);
+    console.log(roomInfo);
     return parseDom(
         '<div class="container"> \
             <div class="card"> \
                 <div class="card-header"> \
                     <div class="d-flex justify-content-between"> \
-                        <h5 class="card-title">' + $(userNode).attr("name")  + ' via ' + roomInfo.name + '</h5> \
+                        <h5 class="card-title">' + userInfo["name"]  + ' via ' + roomInfo.name + '</h5> \
                         <button type="button" class="btn btn-danger btn-sm" >End</button> \
                     </div> \
                 </div> \
@@ -293,7 +302,7 @@ function getChatTemplate(userNode,roomInfo,chatHistory){
              <div class="input-group mb-3">\
                 <input type="text" class="form-control" placeholder="Message..." aria-label="Recipient\'s username" aria-describedby="button-addon2">\
                 <div class="input-group-append">\
-                    <button class="btn btn-outline-secondary" type="button" onclick=sendChatMessage('+roomInfo.id + ','+$(userNode).attr("userId") +',this.parentNode.parentNode)>Send</button>\
+                    <button class="btn btn-outline-secondary" type="button" onclick=sendChatMessage('+roomInfo.id + ','+userInfo["userId"] +',this.parentNode.parentNode)>Send</button>\
                 </div>\
              </div>\
         </div>');
@@ -320,14 +329,13 @@ function getChatRoomNameFromUser(node){
 }
 
 function getChatHistory(chatHistory){
-    chatHistory = [{"sender" : "Allen","message" : "Hi I am Allen"},{"sender" : "Bob","message" : "Hi I am Bob"}]
-    var login = "Allen";
+  //  chatHistory = [{"sender" : "Allen","message" : "Hi I am Allen"},{"sender" : "Bob","message" : "Hi I am Bob"}]
     if (chatHistory == null){
         return "";
     }
     var history = "";
     for (var i = 0; i < chatHistory.length; i++){
-        if (chatHistory[i].sender == login ){
+        if (chatHistory[i]["senderId"] == userId ){
             history += '<div class="alert alert-primary" role="alert">' +
                            '<p>' + chatHistory[i].message +  '</p>\n' +
                        '</div>'
