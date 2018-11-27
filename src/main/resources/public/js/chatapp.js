@@ -5,6 +5,8 @@ var chattingUser = "";
 var username = "";
 var userId = "";
 var roomId ="";
+var joinedRoom = [];
+var ownerRoom = [];
 /**
  * Entry point into chat room
  */
@@ -122,16 +124,20 @@ function updateRoomList(message){
 }
 
 function updateMyRooms(message){
+    joinedRoom = [];
+    ownerRoom = [];
     var roomCard =  document.getElementById("room-card-body");
     while (roomCard.lastChild) {
         roomCard.removeChild(roomCard.lastChild);
     }
     message["joinedRooms"].forEach(function (room) {
         roomCard.appendChild(getRoomTemplate(room));
+        joinedRoom.push(room["id"]);
     });
 
     message["ownedRooms"].forEach(function (room) {
         roomCard.appendChild(getRoomTemplate(room));
+        ownerRoom.push(room["id"]);
     });
     $(".btn-start-chat").click(function (event) {
        // // query userChatHistory [roomId] [anotherUserId]
@@ -219,6 +225,19 @@ function getRoomTemplate(room){
 }
 function leaveRoom(id){
     sendMessage("leave|"+id);
+}
+
+function leaveAllRooms(){
+    console.log("leaveAllRooms");
+    console.log(joinedRoom);
+    console.log(ownerRoom);
+    joinedRoom.forEach(function(roomId){
+        sendMessage("leave|"+roomId);
+    });
+    ownerRoom.forEach(function(roomId){
+        sendMessage("leave|"+roomId);
+    })
+
 }
 function createNotificationBlock(room){
     var block = "";
