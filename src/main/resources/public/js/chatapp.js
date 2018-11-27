@@ -139,6 +139,7 @@ function updateMyRooms(message){
         roomCard.appendChild(getRoomTemplate(room));
         ownerRoom.push(room["id"]);
     });
+    $(".notification").delay(5000).hide(0);
     $(".btn-start-chat").click(function (event) {
        // // query userChatHistory [roomId] [anotherUserId]
         var roomInfo = getChatRoomNameFromUser(event.target);
@@ -243,8 +244,8 @@ function createNotificationBlock(room){
     var block = "";
     var notifications = room["notifications"];
     for (var i = 0; i < notifications.length; i++){
-        block += '<div class="alert alert-primary" role="alert">\ '+
-                     '<p>' +notifications[i] + '</p>\</div>';
+        block += '<div class="alert alert-primary notification" role="alert" >\ '+
+                     '<p>' +notifications[i]+ '</p>\</div>';
     }
     if (room["owner"]["id"] == userId) {
         block += '<div class="input-group mb-3">\
