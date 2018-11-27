@@ -32,7 +32,7 @@ public class WebSocketController {
      */
     @OnWebSocketMessage
     public void onMessage(Session user, String message) {
-        String[] info = message.split(" ");
+        String[] info = message.split("|");
         Preconditions.checkArgument(info.length > 0, "Illegal client message: %s", message);
 
         if (info[0].equals("login")) {
@@ -83,7 +83,7 @@ public class WebSocketController {
      * @Throws throw {@code IllegalArgumentException} if this message is not in required format.
      */
     private void ackMessageAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 2, "Illegal ackMessage message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 2, "Illegal ackMessage message format: %s", message);
         ChatAppController.getDispatcher().ackMessage(user, message.trim());
     }
 
@@ -93,7 +93,7 @@ public class WebSocketController {
      * @param message
      */
     private void addRoomAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 6, "Illegal create room message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 6, "Illegal create room message format: %s", message);
         ChatAppController.getDispatcher().loadRoom(user, message.trim());
     }
 
@@ -103,7 +103,7 @@ public class WebSocketController {
      * @param message
      */
     private void enforceFilterAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 6, "Illegal modify room message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 6, "Illegal modify room message format: %s", message);
         ChatAppController.getDispatcher().modifyRoom(user, message.trim());
     }
 
@@ -113,7 +113,7 @@ public class WebSocketController {
      * @param message
      */
     private void joinRoomAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 2, "Illegal join room message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 2, "Illegal join room message format: %s", message);
         ChatAppController.getDispatcher().joinRoom(user, message);
     }
 
@@ -123,7 +123,7 @@ public class WebSocketController {
      * @param message
      */
     private void leaveRoomAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 2, "Illegal leave room message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 2, "Illegal leave room message format: %s", message);
         ChatAppController.getDispatcher().leaveRoom(user, message);
     }
 
@@ -133,7 +133,7 @@ public class WebSocketController {
      * @param message
      */
     private void queryChatHistoryOfRoomAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 4, "Illegal QueryChatHistoryOfRoom message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 4, "Illegal QueryChatHistoryOfRoom message format: %s", message);
         ChatAppController.getDispatcher().query(user, message);
     }
 
@@ -143,7 +143,7 @@ public class WebSocketController {
      * @param message
      */
     private void queryNotificationsOfRoomAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 3, "Illegal QueryNotificationsOfRoom message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 3, "Illegal QueryNotificationsOfRoom message format: %s", message);
         ChatAppController.getDispatcher().query(user, message);
     }
 
@@ -153,7 +153,7 @@ public class WebSocketController {
      * @param message
      */
     private void queryUsersOfRoomAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 3, "Illegal QueryUsersOfRoom message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 3, "Illegal QueryUsersOfRoom message format: %s", message);
         ChatAppController.getDispatcher().query(user, message);
     }
 
@@ -184,7 +184,7 @@ public class WebSocketController {
      * @param message
      */
     private void loginAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 5, "Illegal login message format: %s", message);
+        Preconditions.checkArgument(message.split("|").length == 5, "Illegal login message format: %s", message);
         ChatAppController.getDispatcher().loadUser(user, message);
     }
 
