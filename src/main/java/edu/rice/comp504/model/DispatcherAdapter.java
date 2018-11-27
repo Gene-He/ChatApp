@@ -56,9 +56,9 @@ public class DispatcherAdapter extends Observable {
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
 
-        advanceCounter(this.nextUserId);
+        advanceCounter(nextUserId.get());
 
-        userIdFromSession.put(session, this.nextUserId);
+        userIdFromSession.put(session, nextUserId.get());
 
     }
 
@@ -137,7 +137,7 @@ public class DispatcherAdapter extends Observable {
 
         } else {
 
-            rooms.put(this.nextRoomId, my_room);
+            rooms.put(nextRoomId.get(), my_room);
 
             //update user's join list
             my_user.addRoom(my_room);
@@ -384,10 +384,10 @@ public class DispatcherAdapter extends Observable {
     }
 
     public AResponse getRoomsForUser(int userId) {
-
+        return null;
     }
 
     public AResponse getChatBoxForUser(int userId) {
-
+        return null;
     }
 }

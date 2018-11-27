@@ -83,10 +83,10 @@ public class WebSocketController {
         ChatAppController.getDispatcher().loadRoom(user, message.trim());
     }
 
-//    private void enforceFilterAction(Session user, String message) {
+    private void enforceFilterAction(Session user, String message) {
 //        Preconditions.checkArgument(message.split(" ").length == 6, "Illegal modify room message format: %s", message);
 //        ChatAppController.getDispatcher().modifyRoom(user, message.trim());
-//    }
+    }
 
     private void joinRoomAction(Session user, String message) {
         Preconditions.checkArgument(message.split(" ").length == 2, "Illegal join room message format: %s", message);
