@@ -162,7 +162,7 @@ function createRoomInfo()
 
     // Grammar: create [roomName] [ageLower] [ageUpper] f[location],g*f[location]g f[school],g*f[school]g
     // TODO: room name does not allow space
-    var room_str = "create "+rname +" "+ minage +" "+ maxage+ " " + r_loc +" " + r_sch;
+    var room_str = "create|"+rname +"|"+ minage +"|"+ maxage+ "|" + r_loc +"|" + r_sch;
 
     sendMessage(room_str);
     document.getElementById("createroom_close").click(); // Click on the checkbox
@@ -237,8 +237,8 @@ function createUserTable(){
 }
 
 function joinRoom(roomId){
-    // Grammar: join [roomId]
-    sendMessage("join " + roomId);
+    // Grammar: join|[roomId]
+    sendMessage("join|" + roomId);
 }
 function openChatDialog(userName,roomName){
     var room = document.getElementById("chat-box");
