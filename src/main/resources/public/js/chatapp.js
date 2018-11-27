@@ -22,6 +22,11 @@ window.onload = function() {
     var room = document.getElementById("room-card-body");
     room.appendChild(getRoomTemplate("New block"));
 
+    $(".btn-start-chat").click(function (event) {
+        //TODO Send request
+        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),getChatRoomNameFromUser(event.target));
+    });
+
 }
 
 /**
@@ -131,15 +136,73 @@ function createUserTable(){
         var td = tr.insertCell();
         var user = parseDom("<div class=\"d-flex justify-content-between\"></div>")
         var p = document.createElement('p');
-        p.innerHTML = users[i];
+        p.setAttribute("name",users[i]);
+        p.innerText = users[i];
         user.appendChild(p);
         if (users[i] == owner) {
             p.appendChild(parseDom('<span class=\"badge badge-primary\">Owner</span>'));
         }
         if (users[i] != chatUser) {
-            user.appendChild(parseDom('<button class="btn btn-success btn-sm">Chat</button>'));
+            user.appendChild(parseDom('<button class="btn btn-success btn-sm btn-start-chat">Chat</button>'));
         }
         td.append(user);
     }
     return tbl;
+}
+function openChatDialog(userName,roomName){
+    var room = document.getElementById("chat-box");
+    console.log(room);
+    var fc = room.firstChild;
+    room.replaceChild(getChatTemplate(userName,roomName,null),fc);
+}
+
+function getChatTemplate(userName,roomName,chatHistory){
+    return parseDom(
+        '<div class="container"> \
+            <div class="card"> \
+                <div class="card-header"> \
+                    <div class="d-flex justify-content-between"> \
+                        <h5 class="card-title">' + userName  + ' via ' + roomName + '</h5> \
+                        <button type="button" class="btn btn-danger btn-sm" >End</button> \
+                    </div> \
+                </div> \
+                <div class="card-body"> ' + getChatHistory(chatHistory) +
+               '</div> \
+             </div> \
+             <div class="input-group mb-3">\
+                <input type="text" class="form-control" placeholder="Message..." aria-label="Recipient\'s username" aria-describedby="button-addon2">\
+                <div class="input-group-append">\
+                    <button class="btn btn-outline-secondary" type="button">Send</button>\
+                </div>\
+             </div>\
+        </div>');
+
+}
+
+function getChatRoomNameFromUser(node){
+    while (node != null && node.getElementsByClassName("card-title").length == 0){
+        node = node.parentNode;
+    }
+    return node.getElementsByClassName("card-title")[0].innerHTML;
+}
+
+function getChatHistory(chatHistory){
+    chatHistory = [{"sender" : "Allen","message" : "Hi I am Allen"},{"sender" : "Bob","message" : "Hi I am Bob"}]
+    var login = "Allen";
+    if (chatHistory == null){
+        return "";
+    }
+    var history = "";
+    for (var i = 0; i < chatHistory.length; i++){
+        if (chatHistory[i].sender == login ){
+            history += '<div class="alert alert-primary" role="alert">' +
+                           '<p>' + chatHistory[i].message +  '</p>\n' +
+                       '</div>'
+        }else {
+            history += '<div class="alert alert-success" role="alert">' +
+                '<p>' + chatHistory[i].message +  '</p>\n' +
+                '</div>'
+        }
+    }
+    return history;
 }
