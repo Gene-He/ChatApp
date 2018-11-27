@@ -347,7 +347,7 @@ public class DispatcherAdapter extends Observable {
         System.out.println("broadcast message: " + body);
         String[] info = body.split("\\|");
         int roomId = Integer.parseInt(info[1]);
-        String broadCastMsg = info[3];
+        String broadCastMsg = info[2];
 
         // Check if broadcast message has illegal words.
         if (Arrays.asList(broadCastMsg.split(" ")).contains("hate")) {
@@ -361,6 +361,7 @@ public class DispatcherAdapter extends Observable {
 
         // Send back response to all users in this room.
         rooms.get(roomId).getUsers().keySet().stream().forEach(userId -> constructAndSendResponseForUser(userId));
+        constructAndSendResponseForUser(rooms.get(roomId).getOwner().getId());
     }
 
     private void constructAndSendResponseForUser(int userId) {
