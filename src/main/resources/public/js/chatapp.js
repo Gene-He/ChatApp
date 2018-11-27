@@ -117,6 +117,9 @@ function updateRoomList(message){
 
 function updateMyRooms(message){
     var roomCard =  document.getElementById("room-card-body");
+    while (roomCard.lastChild) {
+        roomCard.removeChild(roomCard.lastChild);
+    }
     message["joinedRooms"].forEach(function (room) {
         roomCard.appendChild(getRoomTemplate(room));
     });
@@ -128,7 +131,10 @@ function updateMyRooms(message){
         //TODO Send request
         var userId = $(event.target.parentElement.childNodes[0]).attr("userId");
 
-        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),getChatRoomNameFromUser(event.target));
+        var roomInfo = getChatRoomNameFromUser(event.target);
+        var roomId = roomInfo.id;
+        console.log("start chat : userId = " + userId + "roomId = "+ roomId);
+        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),roomInfo.name);
     });
 }
 
@@ -224,7 +230,7 @@ function createUserTable(room){
     var tbl  = document.createElement('table');
     appendUser(tbl,room["owner"]["name"],room["owner"]["id"],true);
     for (var key in map){
-        appendUser(tbl,map[key],false);
+        appendUser(tbl,map[key],key,false);
     }
     return tbl;
 }
@@ -286,8 +292,9 @@ function getChatRoomNameFromUser(node){
     while (node != null && node.getElementsByClassName("card-title").length == 0){
         node = node.parentNode;
     }
-    console.log(node.getElementsByClassName("card-title")[0].attr("id"))
-    return node.getElementsByClassName("card-title")[0].innerHTML;
+    console.log(node.getElementsByClassName("card-title")[0]);
+    console.log(node.getElementsByClassName("card-title")[0].id);
+    return {name : node.getElementsByClassName("card-title")[0].innerHTML,id : node.getElementsByClassName("card-title")[0].id};
 }
 
 function getChatHistory(chatHistory){
