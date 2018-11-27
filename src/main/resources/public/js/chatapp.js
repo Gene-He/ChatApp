@@ -36,7 +36,8 @@ function sendMessage(msg) {
  * Update the chat room with a message.
  * @param message  The message to update the chat room with.
  */
-function updateChatRoom(message) {
+function updateChatRoom(data) {
+    var message = JSON.parse(data);
     if(message['type'] === "NewUserResponse"){
 
     }
