@@ -386,7 +386,6 @@ public class DispatcherAdapter extends Observable {
     }
 
     public AResponse getRoomsForUser(int userId) {
-<<<<<<< HEAD
         Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
@@ -423,13 +422,5 @@ public class DispatcherAdapter extends Observable {
         } else {
             return Integer.parseInt(users[0]);
         }
-
-=======
-        return null;
-    }
-
-    public AResponse getChatBoxForUser(int userId) {
-        return null;
->>>>>>> 591427552f96d3276108d67e7c20de93eb55c719
     }
 }
