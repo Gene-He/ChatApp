@@ -126,7 +126,7 @@ function updateMyRooms(message){
     });
     $(".btn-start-chat").click(function (event) {
        // // query userChatHistory [roomId] [anotherUserId]
-       //  var roomInfo = getChatRoomNameFromUser(event.target);
+        var roomInfo = getChatRoomNameFromUser(event.target);
        //  var user_str = "query|userChatHistory|" + roomInfo.id + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
        //  sendMessage(user_str);
         openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),roomInfo.name);
