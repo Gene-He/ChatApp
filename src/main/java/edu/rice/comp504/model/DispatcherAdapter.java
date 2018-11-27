@@ -105,7 +105,12 @@ public class DispatcherAdapter extends Observable {
             if(room.applyFilter(my_user)) my_user.addRoom(room);
         }
 
-        //TODO: call our two methods for sending room info and sending chat info
+        try {
+            session.getRemote().sendString(getChatBoxForUser(my_id).toJson());
+            session.getRemote().sendString(getRoomsForUser(my_id).toJson());
+        } catch (IOException excpetion) {
+            System.out.println("Failed when sending room information for new user on login!");
+        }
 
         return my_user;
     }
@@ -144,9 +149,9 @@ public class DispatcherAdapter extends Observable {
             my_user.addRoom(my_room);
             my_user.moveToJoined(my_room);
 
-            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room);
+            //This command now has the DA as a member, and will perform the session.getRemote to send the response.
+            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room, this);
             notifyObservers(cmd);
-            //TODO: send room info to all clients
 
             return my_room;
         }
@@ -182,13 +187,12 @@ public class DispatcherAdapter extends Observable {
     public void unloadRoom(int roomId) {
         rooms.get(roomId).removeAllUsers();
 
-        IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId));
+        //This command now has the DA as a member, and will perform the session.getRemote to send the response.
+        IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId), this);
         notifyObservers(cmd);
 
         //delete room from map.
         rooms.remove(roomId);
-
-        //TODO: call method to send room info, chat info
     }
 
 
@@ -220,8 +224,11 @@ public class DispatcherAdapter extends Observable {
             //add user as an observer of the room
             my_room.addUser(my_user);
 
-            //TODO: call method to send room info
-
+            try {
+                session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+            } catch (IOException excpetion) {
+                System.out.println("Failed when sending room information upon user joining room!");
+            }
         }
     }
 
@@ -257,7 +264,12 @@ public class DispatcherAdapter extends Observable {
         }
 
 
-        //TODO: call method to send room info
+        try {
+            session.getRemote().sendString(getChatBoxForUser(my_user.getId()).toJson());
+            session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+        } catch (IOException excpetion) {
+            System.out.println("Failed when sending room information for user leaving room!");
+        }
 
         //delete room if this user is the owner
         if(my_room.getOwner() == my_user) unloadRoom(roomId);
@@ -272,6 +284,8 @@ public class DispatcherAdapter extends Observable {
     public void ejectFromRoom(Session session, String body){
         leaveRoom(session, body+" was_ejected_for_violating_chatroom_language_policy.");
     }
+
+
 
     // TODO: I question the need for this method. We don't have to allow this. (-Alex)
     // TODO: Deprecated

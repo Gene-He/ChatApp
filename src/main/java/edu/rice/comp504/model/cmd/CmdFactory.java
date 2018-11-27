@@ -1,5 +1,6 @@
 package edu.rice.comp504.model.cmd;
 
+import edu.rice.comp504.model.DispatcherAdapter;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
 
@@ -8,8 +9,8 @@ import edu.rice.comp504.model.obj.User;
  */
 public class CmdFactory {
 
-    public static IUserCmd makeAddRoomCmd(ChatRoom chatRoom) {
-        return new AddRoomCmd(chatRoom);
+    public static IUserCmd makeAddRoomCmd(ChatRoom chatRoom, DispatcherAdapter da) {
+        return new AddRoomCmd(chatRoom, da);
     }
 
     public static IUserCmd makeEnforceFilterCmd(ChatRoom chatRoom) {
@@ -24,7 +25,7 @@ public class CmdFactory {
         return new LeaveRoomCmd(chatRoom, user);
     }
 
-    public static IUserCmd makeRemoveRoomCmd(ChatRoom chatRoom) {
-        return new RemoveRoomCmd(chatRoom);
+    public static IUserCmd makeRemoveRoomCmd(ChatRoom chatRoom, DispatcherAdapter da) {
+        return new RemoveRoomCmd(chatRoom, da);
     }
 }
