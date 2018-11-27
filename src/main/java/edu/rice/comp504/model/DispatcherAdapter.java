@@ -350,6 +350,7 @@ public class DispatcherAdapter extends Observable {
 
         try {
             users.get(receiverId).getSession().getRemote().sendString(getChatBoxForUser(receiverId).toJson());
+            users.get(senderId).getSession().getRemote().sendString(getChatBoxForUser(senderId).toJson());
         } catch (IOException excpetion) {
             System.out.println("Failed when sending message received confirmation!");
         }
