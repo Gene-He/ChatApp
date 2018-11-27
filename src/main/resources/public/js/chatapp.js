@@ -30,6 +30,7 @@ function sendMessage(msg) {
 function updateChatRoom(data) {
     console.log("Receiving: " + data);
     var message = JSON.parse(data);
+    console.log("Receiving: " + message);
     if(message['type'] === "NewUserResponse"){
 
     }
@@ -44,6 +45,7 @@ function updateChatRoom(data) {
 
     }
     if(message['type'] === "UserChatHistory"){
+       updateMyChats(message["chatHistory"]);
 
     }
     if(message['type'] === "UserRooms"){
@@ -133,11 +135,16 @@ function updateMyRooms(message){
         var roomInfo = getChatRoomNameFromUser(event.target);
         var user_str = "query|userChatHistory|" + roomInfo.id + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
         sendMessage(user_str);
-        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),roomInfo.name);
+        openChatDialog(event.target.parentElement.childNodes[0],roomInfo);
     });
 }
 
 function updateMyChats(message){
+    console.log(message);
+    message.forEach(function (chat){
+        console.log(chat);
+
+    });
 
 }
 
@@ -259,20 +266,22 @@ function joinRoom(roomId){
     // Grammar: join|[roomId]
     sendMessage("join|" + roomId);
 }
-function openChatDialog(userName,roomName){
+function openChatDialog(userNode,roomInfo){
     var room = document.getElementById("chat-box");
     console.log(room);
     var fc = room.firstChild;
-    room.replaceChild(getChatTemplate(userName,roomName,null),fc);
+    room.replaceChild(getChatTemplate(userNode,roomInfo,null),fc);
 }
 
-function getChatTemplate(userName,roomName,chatHistory){
+function getChatTemplate(userNode,roomInfo,chatHistory){
+    console.log("getChatTemplate");
+    console.log(userNode);
     return parseDom(
         '<div class="container"> \
             <div class="card"> \
                 <div class="card-header"> \
                     <div class="d-flex justify-content-between"> \
-                        <h5 class="card-title">' + userName  + ' via ' + roomName + '</h5> \
+                        <h5 class="card-title">' + $(userNode).attr("name")  + ' via ' + roomInfo.name + '</h5> \
                         <button type="button" class="btn btn-danger btn-sm" >End</button> \
                     </div> \
                 </div> \
@@ -282,13 +291,16 @@ function getChatTemplate(userName,roomName,chatHistory){
              <div class="input-group mb-3">\
                 <input type="text" class="form-control" placeholder="Message..." aria-label="Recipient\'s username" aria-describedby="button-addon2">\
                 <div class="input-group-append">\
-                    <button class="btn btn-outline-secondary" type="button">Send</button>\
+                    <button class="btn btn-outline-secondary" type="button" onclick=sendChatMessage('+roomInfo.id + ','+$(userNode).attr("userId") +',this.parentNode.parentNode)>Send</button>\
                 </div>\
              </div>\
         </div>');
 
 }
+function sendChatMessage(roomId,userId,node){
+    sendMessage("send|" + roomId +"|"+userId + "|"+node.getElementsByTagName("input")[0].value);
 
+}
 function sendBroadCast(roomId,node){
     console.log(roomId);
     console.log(node.getElementsByTagName("input")[0].value);
