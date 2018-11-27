@@ -5,6 +5,8 @@ var chattingUser = "";
 var username = "";
 var userId = "";
 var roomId ="";
+var joinedRoom = [];
+var ownerRoom = [];
 /**
  * Entry point into chat room
  */
@@ -122,16 +124,20 @@ function updateRoomList(message){
 }
 
 function updateMyRooms(message){
+    joinedRoom = [];
+    ownerRoom = [];
     var roomCard =  document.getElementById("room-card-body");
     while (roomCard.lastChild) {
         roomCard.removeChild(roomCard.lastChild);
     }
     message["joinedRooms"].forEach(function (room) {
         roomCard.appendChild(getRoomTemplate(room));
+        joinedRoom.push(room["id"]);
     });
 
     message["ownedRooms"].forEach(function (room) {
         roomCard.appendChild(getRoomTemplate(room));
+        ownerRoom.push(room["id"]);
     });
     $(".btn-start-chat").click(function (event) {
        // // query userChatHistory [roomId] [anotherUserId]
@@ -220,6 +226,19 @@ function getRoomTemplate(room){
 function leaveRoom(id){
     sendMessage("leave|"+id);
 }
+
+function leaveAllRooms(){
+    console.log("leaveAllRooms");
+    console.log(joinedRoom);
+    console.log(ownerRoom);
+    joinedRoom.forEach(function(roomId){
+        sendMessage("leave|"+roomId);
+    });
+    ownerRoom.forEach(function(roomId){
+        sendMessage("leave|"+roomId);
+    })
+
+}
 function createNotificationBlock(room){
     var block = "";
     var notifications = room["notifications"];
@@ -294,7 +313,7 @@ function getChatTemplate(userInfo,roomInfo,chatHistory){
                 <div class="card-header"> \
                     <div class="d-flex justify-content-between"> \
                         <h5 class="card-title">' + userInfo["name"]  + ' via ' + roomInfo.name + '</h5> \
-                        <button type="button" class="btn btn-danger btn-sm" >End</button> \
+                        <button type="button" class="btn btn-danger btn-sm" onclick="endChatDialog()">End</button> \
                     </div> \
                 </div> \
                 <div class="card-body"> ' + getChatHistory(chatHistory) +
@@ -311,7 +330,12 @@ function getChatTemplate(userInfo,roomInfo,chatHistory){
 }
 function sendChatMessage(roomId,userId,node){
     sendMessage("send|" + roomId +"|"+userId + "|"+node.getElementsByTagName("input")[0].value);
-
+}
+function endChatDialog(){
+    var room = document.getElementById("chat-box");
+    room.removeChild(room.firstChild);
+    roomId = "";
+    chattingUser = "";
 }
 function sendBroadCast(roomId,node){
     console.log(roomId);
@@ -336,11 +360,16 @@ function getChatHistory(chatHistory){
     }
     var history = "";
     for (var i = 0; i < chatHistory.length; i++){
+
         if (chatHistory[i]["senderId"] == userId ){
+            var ackMsg = chatHistory[i]["isReceived"] ? "(is received)" : "";
             history += '<div class="alert alert-primary" role="alert">' +
-                           '<p>' + chatHistory[i].message +  '</p>\n' +
+                           '<p>' + chatHistory[i].message + ackMsg + '</p>\n' +
                        '</div>'
         }else {
+            if (!chatHistory[i]["isReceived"]){
+                sendMessage("ack|" + chatHistory[i]["id"]);
+            }
             history += '<div class="alert alert-success" role="alert">' +
                 '<p>' + chatHistory[i].message +  '</p>\n' +
                 '</div>'
