@@ -2,12 +2,6 @@ package edu.rice.comp504.model.cmd;
 
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
-import edu.rice.comp504.model.res.AResponse;
-import edu.rice.comp504.model.res.UserRoomsResponse;
-
-import javax.imageio.IIOException;
-import java.io.IOException;
-import java.util.HashSet;
 
 class AddRoomCmd implements IUserCmd {
 

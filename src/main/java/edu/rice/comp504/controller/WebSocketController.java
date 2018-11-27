@@ -21,6 +21,7 @@ public class WebSocketController {
      */
     @OnWebSocketConnect
     public void onConnect(Session user) {
+        ChatAppController.getDispatcher().newSession(user);
     }
 
 

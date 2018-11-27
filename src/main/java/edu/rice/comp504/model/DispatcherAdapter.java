@@ -58,18 +58,17 @@ public class DispatcherAdapter extends Observable {
      */
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
-
         advanceCounter(nextUserId.get());
-
         userIdFromSession.put(session, nextUserId.get());
-
     }
 
     /**
      * Separate method to apply operator ++, but within a synchronized method
      * @param counter
      */
-    public synchronized void advanceCounter(int counter) {counter++;}
+    public synchronized void advanceCounter(int counter) {
+        counter++;
+    }
 
 
     /**
@@ -99,7 +98,7 @@ public class DispatcherAdapter extends Observable {
     public User loadUser(Session session, String body) {
         String[] tokens = body.split(" ");
         int my_id = getUserIdFromSession(session);
-        User my_user = new User(my_id, session, tokens[0], (int)(Integer.valueOf(tokens[1])),
+        User my_user = new User(my_id, session, tokens[0], Integer.valueOf(tokens[1]),
                 tokens[2], tokens[3], null);
         users.put(my_id, my_user);
 
@@ -182,7 +181,6 @@ public class DispatcherAdapter extends Observable {
      * @param roomId the id of the chat room to be removed
      */
     public void unloadRoom(int roomId) {
-
         rooms.get(roomId).removeAllUsers();
 
         //TODO: send message to all users in the room, if there is a way to do this somewhere not inside the
@@ -204,7 +202,6 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void joinRoom(Session session, String body) {
-
         //get room from body
         String[] info = body.split(",");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
@@ -236,7 +233,6 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void leaveRoom(Session session, String body) {
-
         //get room from body
         String[] info = body.split(" ");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
@@ -388,7 +384,7 @@ public class DispatcherAdapter extends Observable {
     }
 
 
-//TODO: The three methods below already exist as a methods in the chatroom class. Do we need them here for some reason?
+    //TODO: The three methods below already exist as a methods in the chatroom class. Do we need them here for some reason?
     /**
      * Get the names of all chat room members.
      * @param roomId the id of the chat room

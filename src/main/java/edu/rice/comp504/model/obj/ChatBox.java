@@ -2,12 +2,16 @@ package edu.rice.comp504.model.obj;
 
 import java.util.List;
 
+/**
+ * Represent a chat between two users
+ */
 public class ChatBox {
 
     private int roomId;
     private String roomName;
     private int anotherUserId;
     private String anotherUserName;
+
 
     private List<Message> chatHistory;
 
