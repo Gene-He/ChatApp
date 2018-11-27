@@ -2,6 +2,9 @@ package edu.rice.comp504.model.obj;
 
 import java.util.*;
 
+/**
+ * Represent a chat between two users
+ */
 public class ChatBox {
 
     private int id;
@@ -10,13 +13,20 @@ public class ChatBox {
     private ChatRoom room_of_origin;
     List<Message> chatBoxHistory;
 
-    public ChatBox (int id, User a, User b, ChatRoom origin) {
-
+    /**
+     * Constructor
+     * @param id
+     * @param a
+     * @param b
+     * @param origin
+     */
+    public ChatBox(int id, User a, User b, ChatRoom origin) {
         this.id = id;
         this.user_a = a;
         this.user_b = b;
         this.room_of_origin = origin;
-        this.chatBoxHistory = new LinkedList<Message>();
+        this.chatBoxHistory = new LinkedList<>();
+    }
 //
 //            @Override
 //            public int size() {
@@ -132,7 +142,7 @@ public class ChatBox {
 //            public List<Message> subList(int fromIndex, int toIndex) {
 //                return null;
 //            }
-    }
+
 
 
 
