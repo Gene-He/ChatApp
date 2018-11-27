@@ -114,6 +114,9 @@ function updateRoomList(message){
 
 function updateMyRooms(message){
     var roomCard =  document.getElementById("room-card-body");
+    while (roomCard.lastChild) {
+        roomCard.removeChild(roomCard.lastChild);
+    }
     message["joinedRooms"].forEach(function (room) {
         roomCard.appendChild(getRoomTemplate(room));
     });
@@ -123,7 +126,12 @@ function updateMyRooms(message){
     });
     $(".btn-start-chat").click(function (event) {
         //TODO Send request
-        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),getChatRoomNameFromUser(event.target));
+        var userId = $(event.target.parentElement.childNodes[0]).attr("userId");
+
+        var roomInfo = getChatRoomNameFromUser(event.target);
+        var roomId = roomInfo.id;
+        console.log("start chat : userId = " + userId + "roomId = "+ roomId);
+        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),roomInfo.name);
     });
 }
 
@@ -179,7 +187,7 @@ function getRoomTemplate(room){
             <div class="card"> \
                 <div class="card-header"> \
                     <div class="d-flex justify-content-between"> \
-                        <h5 class="card-title">' + room["name"] + '</h5> \
+                        <h5 class="card-title" id="' +room["id"]+ '">' + room["name"] + '</h5> \
                         <button type="button" class="btn btn-danger btn-sm" >Leave</button> \
                     </div> \
                 </div> \
@@ -217,19 +225,20 @@ function createUserTable(room){
     console.log(room);
     var map = room["userNameFromUserId"];
     var tbl  = document.createElement('table');
-    appendUser(tbl,room["owner"]["name"],true);
+    appendUser(tbl,room["owner"]["name"],room["owner"]["id"],true);
     for (var key in map){
-        appendUser(tbl,map[key],false);
+        appendUser(tbl,map[key],key,false);
     }
     return tbl;
 }
 
-function appendUser(tbl,name,isOwner){
+function appendUser(tbl,name,id,isOwner){
     var tr = tbl.insertRow();
     var td = tr.insertCell();
     var user = parseDom("<div class=\"d-flex justify-content-between\"></div>")
     var p = document.createElement('p');
     p.setAttribute("name",name);
+    p.setAttribute("userId",id);
     p.innerText = name;
     user.appendChild(p);
     if (isOwner) {
@@ -280,7 +289,9 @@ function getChatRoomNameFromUser(node){
     while (node != null && node.getElementsByClassName("card-title").length == 0){
         node = node.parentNode;
     }
-    return node.getElementsByClassName("card-title")[0].innerHTML;
+    console.log(node.getElementsByClassName("card-title")[0]);
+    console.log(node.getElementsByClassName("card-title")[0].id);
+    return {name : node.getElementsByClassName("card-title")[0].innerHTML,id : node.getElementsByClassName("card-title")[0].id};
 }
 
 function getChatHistory(chatHistory){
