@@ -340,7 +340,7 @@ public class DispatcherAdapter extends Observable {
 
         // TODO: check if this message contain unallowed words
         if (Arrays.asList(message.split(" ")).contains("hate")) {
-            ejectFromRoom(session, "leave " + roomId);
+            ejectFromRoom(session, "leave|" + roomId);
             return;
         }
 
