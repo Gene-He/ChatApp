@@ -207,7 +207,7 @@ function getRoomTemplate(room){
                 <div class="card-header"> \
                     <div class="d-flex justify-content-between"> \
                         <h5 class="card-title" id="' +room["id"]+ '">' + room["name"] + '</h5> \
-                        <button type="button" class="btn btn-danger btn-sm" >Leave</button> \
+                        <button type="button" class="btn btn-danger btn-sm" onclick="leaveRoom('+room["id"]+')" >Leave</button> \
                     </div> \
                 </div> \
                 <div class="card-body"> \
@@ -217,7 +217,9 @@ function getRoomTemplate(room){
             </div> \
         </div>');
 }
-
+function leaveRoom(id){
+    sendMessage("leave|"+id);
+}
 function createNotificationBlock(room){
     var block = "";
     var notifications = room["notifications"];
