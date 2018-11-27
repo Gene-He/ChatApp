@@ -23,10 +23,10 @@ public class ChatRoom extends Observable {
     private transient DispatcherAdapter dis;
 
     // Maps user id to the user name
-    private transient Map<Integer, String> userNameFromUserId;
+    private  Map<Integer, String> userNameFromUserId;
 
     // notifications contain why the user left, etc.
-    private transient List<String> notifications;
+    private  List<String> notifications;
 
     // Maps key("smallId&largeId") to list of chat history strings
     private transient Map<String, List<Message>> chatHistory;
