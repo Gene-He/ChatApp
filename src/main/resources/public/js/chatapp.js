@@ -17,6 +17,7 @@ window.onload = function() {
  * @param msg  The message to send to the server.
  */
 function sendMessage(msg) {
+    console.log("Sending: " + msg);
     webSocket.send(msg);
 }
 
@@ -26,7 +27,7 @@ function sendMessage(msg) {
  */
 function updateChatRoom(data) {
     var message = JSON.parse(data);
-    console.log(message);
+    console.log("Receiving: " + message);
     if(message['type'] === "NewUserResponse"){
 
     }
@@ -149,7 +150,7 @@ function createUserInfo()
     var sch =  document.getElementById("reg_school").value;
     // TODO: user name does not allow space
     // Format: login [userName] [age] [location] [school]
-    var user_str = "login " + uname + " " + age + " " + loc+ " " + sch;
+    var user_str = "login|" + uname + "|" + age + "|" + loc+ "|" + sch;
     sendMessage(user_str);
     document.getElementById("login_close").click();
     toggleLogin();
