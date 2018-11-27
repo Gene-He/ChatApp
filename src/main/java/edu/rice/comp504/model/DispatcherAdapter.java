@@ -97,8 +97,8 @@ public class DispatcherAdapter extends Observable {
     public User loadUser(Session session, String body) {
         String[] tokens = body.split(" ");
         int my_id = getUserIdFromSession(session);
-        User my_user = new User(my_id, session, tokens[0], Integer.valueOf(tokens[1]),
-                tokens[2], tokens[3], null);
+        User my_user = new User(my_id, session, tokens[1], Integer.valueOf(tokens[2]),
+                tokens[3], tokens[4], null);
         users.put(my_id, my_user);
 
         for(ChatRoom room: rooms.values()) {
@@ -203,7 +203,7 @@ public class DispatcherAdapter extends Observable {
      */
     public void joinRoom(Session session, String body) {
         //get room from body
-        String[] info = body.split(",");
+        String[] info = body.split(" ");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
