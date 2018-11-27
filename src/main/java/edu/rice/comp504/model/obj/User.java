@@ -170,7 +170,6 @@ public class User implements Observer {
      * */
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println(name + "update himself");
         ((IUserCmd) arg).execute(this);
     }
 

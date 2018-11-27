@@ -405,6 +405,31 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "type roomId [senderId] [receiverId]"
      */
     public void query(Session session, String body) {
+        System.out.println("Query chatBox message: " + body);
+
+        String[] info = body.split("//|");
+        int roomId = Integer.parseInt(info[2]);
+        int thisUserId = getUserIdFromSession(session);
+        int anotherUserId = Integer.parseInt(info[3]);
+
+        String key = Math.min(thisUserId, anotherUserId) + "&" + Math.max(thisUserId, anotherUserId);
+        Map<String, List<Message>> chatHistory = rooms.get(roomId).getChatHistory();
+        List<Message> dialogue = null;
+        if (!chatHistory.containsKey(key)) {
+            dialogue = new ArrayList<>();
+        } else {
+            dialogue = chatHistory.get(key);
+        }
+        ChatBox chatBox = new ChatBox(roomId, rooms.get(roomId).getName(), getAnotherUserId(thisUserId, key), getAnotherUserName(thisUserId, key), dialogue);
+        List<ChatBox> res = new ArrayList<>();
+        res.add(chatBox);
+        AResponse response = new UserChatHistoryResponse("UserChatHistory", users.get(thisUserId).getName(), res);
+
+        try {
+            session.getRemote().sendString(response.toJson());
+        } catch (IOException exception) {
+            System.out.println("Failed when sending query chatbox history back to user");
+        }
 
     }
 
