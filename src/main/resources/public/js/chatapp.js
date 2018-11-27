@@ -22,6 +22,7 @@ window.onload = function() {
  * @param msg  The message to send to the server.
  */
 function sendMessage(msg) {
+    console.log("Sending: "+ msg);
     webSocket.send(msg);
 }
 
@@ -31,6 +32,7 @@ function sendMessage(msg) {
  */
 function updateChatRoom(data) {
     var message = JSON.parse(data);
+    console.log("Receiving: " + message.toString());
     if(message['type'] === "NewUserResponse"){
 
     }
