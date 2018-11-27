@@ -34,10 +34,8 @@ public class WebSocketController {
      */
     @OnWebSocketMessage
     public void onMessage(Session user, String message) {
-        System.out.println("request message: " + message);
         String[] info = message.split("\\|");
         Preconditions.checkArgument(info.length > 0, "Illegal client message: %s", message);
-        Arrays.asList(info).forEach(s -> System.out.println(s));
 
         if (info[0].equals("login")) {
             loginAction(user, message);

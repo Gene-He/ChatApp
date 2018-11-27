@@ -104,7 +104,7 @@ public class DispatcherAdapter extends Observable {
         } catch (IOException exception) {
             System.out.println("Failed when sending room information for new user on login!");
         }
-
+        addObserver(user);
         return user;
     }
 
@@ -144,14 +144,20 @@ public class DispatcherAdapter extends Observable {
 
             //This command now has the DA as a member, and will perform the session.getRemote to send the response.
             IUserCmd cmd = CmdFactory.makeAddRoomCmd(room, this);
+            setChanged();
             notifyObservers(cmd);
         }
         else {
             room = null;
         }
 
+        // TODO: we need to send this response to all users
         try {
-            session.getRemote().sendString(getRoomsForUser(userId).toJson());
+            for (int id : users.keySet()) {
+                System.out.println("Send create room response for user: " + users.get(id).getName());
+                System.out.println(users.get(id).getAvailableRoomIds().size());
+                users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
+            }
         }
         catch (IOException exception) {
             System.out.println("Failed when sending room information upon user creating room!");
@@ -194,6 +200,7 @@ public class DispatcherAdapter extends Observable {
 
         //This command now has the DA as a member, and will perform the session.getRemote to send the response.
         IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId), this);
+        setChanged();
         notifyObservers(cmd);
 
         //delete room from map.
