@@ -103,6 +103,7 @@ function addRoomListCard(roomName, roomId, type){
 
 function updateRoomList(message){
     message["ownedRooms"].forEach(function (room) {
+        // TODO: disable this button
         addRoomListCard(room["Name"], room["Id"], "owned");
     });
 
@@ -111,7 +112,8 @@ function updateRoomList(message){
     });
 
     message["joinedRooms"].forEach(function (room) {
-        addRoomListCard(room["Name"], room["Id"], "owned");
+        // TODO: disable this button
+        addRoomListCard(room["Name"], room["Id"], "joined");
     });
 }
 
