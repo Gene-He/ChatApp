@@ -1,7 +1,7 @@
 'use strict';
 
 const webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/chatapp");
-
+var chattingUser = "";
 /**
  * Entry point into chat room
  */
@@ -9,11 +9,6 @@ window.onload = function() {
     webSocket.onclose = () => alert("WebSocket connection closed");
     webSocket.onmessage = (event) => updateChatRoom(event.data);
 
-
-    $(".btn-start-chat").click(function (event) {
-        //TODO Send request
-        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),getChatRoomNameFromUser(event.target));
-    });
 
 }
 
@@ -43,6 +38,7 @@ function updateChatRoom(data) {
 
     }
     if(message['type'] === "RoomUsersResponse"){
+        console.log("RoomUsersResponse");
 
     }
     if(message['type'] === "UserChatHistory"){
@@ -120,7 +116,18 @@ function updateRoomList(message){
 }
 
 function updateMyRooms(message){
+    var roomCard =  document.getElementById("room-card-body");
+    message["joinedRooms"].forEach(function (room) {
+        roomCard.appendChild(getRoomTemplate(room));
+    });
 
+    message["ownedRooms"].forEach(function (room) {
+        roomCard.appendChild(getRoomTemplate(room));
+    });
+    $(".btn-start-chat").click(function (event) {
+        //TODO Send request
+        openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),getChatRoomNameFromUser(event.target));
+    });
 }
 
 function updateMyChats(message){
@@ -169,27 +176,27 @@ function createRoomInfo()
     document.getElementById("createroom_close").click(); // Click on the checkbox
 }
 
-function getRoomTemplate(title){
+function getRoomTemplate(room){
     return parseDom(
         '<div class="container"> \
             <div class="card"> \
                 <div class="card-header"> \
                     <div class="d-flex justify-content-between"> \
-                        <h5 class="card-title">' + title + '</h5> \
+                        <h5 class="card-title">' + room["name"] + '</h5> \
                         <button type="button" class="btn btn-danger btn-sm" >Leave</button> \
                     </div> \
                 </div> \
                 <div class="card-body"> \
-                    <table class="table">' + createUserTable().innerHTML + '</table>' +
-                    createNotificationBlock() +
+                    <table class="table">' + createUserTable(room).innerHTML + '</table>' +
+                    createNotificationBlock(room) +
                 '</div> \
             </div> \
         </div>');
 }
 
-function createNotificationBlock(){
+function createNotificationBlock(room){
     var block = "";
-    var notifications  = ["A broadcasts : This is a broadcast.","B broadcasts : This is also a broadcast.","C left room"]
+    var notifications = room["notifications"];
     for (var i = 0; i < notifications.length; i++){
         block += '<div class="alert alert-primary" role="alert">\ '+
                      '<p>' +notifications[i] + '</p>\</div>';
@@ -209,33 +216,34 @@ function parseDom(arg) {
     objE.innerHTML = arg;
     return objE.childNodes[0];
 }
-function createUserTable(){
-    //test example
-    var users = ["Allen","Bob","Cindy","Emma"];
-    var owner = "Allen";
-    var chatUser = "Bob";
-    var login = "Cindy";
-
+function createUserTable(room){
+    console.log(room);
+    var map = room["userNameFromUserId"];
     var tbl  = document.createElement('table');
-    for(var i = 0; i < users.length; i++) {
-        if (users[i] == login) continue;
-        var tr = tbl.insertRow();
-        var td = tr.insertCell();
-        var user = parseDom("<div class=\"d-flex justify-content-between\"></div>")
-        var p = document.createElement('p');
-        p.setAttribute("name",users[i]);
-        p.innerText = users[i];
-        user.appendChild(p);
-        if (users[i] == owner) {
-            p.appendChild(parseDom('<span class=\"badge badge-primary\">Owner</span>'));
-        }
-        if (users[i] != chatUser) {
-            user.appendChild(parseDom('<button class="btn btn-success btn-sm btn-start-chat">Chat</button>'));
-        }
-        td.append(user);
+    appendUser(tbl,room["owner"]["name"],true);
+    for (var key in map){
+        appendUser(tbl,map[key],false);
     }
     return tbl;
 }
+
+function appendUser(tbl,name,isOwner){
+    var tr = tbl.insertRow();
+    var td = tr.insertCell();
+    var user = parseDom("<div class=\"d-flex justify-content-between\"></div>")
+    var p = document.createElement('p');
+    p.setAttribute("name",name);
+    p.innerText = name;
+    user.appendChild(p);
+    if (isOwner) {
+        p.appendChild(parseDom('<span class=\"badge badge-primary\">Owner</span>'));
+    }
+    if (name != chattingUser) {
+        user.appendChild(parseDom('<button class="btn btn-success btn-sm btn-start-chat">Chat</button>'));
+    }
+    td.append(user);
+}
+
 
 function joinRoom(roomId){
     // Grammar: join|[roomId]
