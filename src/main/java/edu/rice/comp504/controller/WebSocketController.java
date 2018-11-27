@@ -126,7 +126,7 @@ public class WebSocketController {
      */
     private void leaveRoomAction(Session user, String message) {
         Preconditions.checkArgument(message.split("\\|").length == 2, "Illegal leave room message format: %s", message);
-        ChatAppController.getDispatcher().leaveRoom(user, message);
+        ChatAppController.getDispatcher().voluntaryLeaveRoom(user, message);
     }
 
     /**
@@ -188,6 +188,7 @@ public class WebSocketController {
     private void loginAction(Session user, String message) {
         System.out.println("loginAction");
         Preconditions.checkArgument(message.split("\\|").length == 5, "Illegal login message format: %s", message);
+        ChatAppController.getDispatcher().newSession(user);
         ChatAppController.getDispatcher().loadUser(user, message);
     }
 

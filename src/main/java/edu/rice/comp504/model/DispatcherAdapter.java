@@ -91,7 +91,7 @@ public class DispatcherAdapter extends Observable {
         int userId = getUserIdFromSession(session);
         User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
                 tokens[3], tokens[4], null);
-
+        System.out.println(userId + " " + user.getName());
         users.put(userId, user);
 
         for(ChatRoom room: rooms.values()) {
@@ -261,7 +261,6 @@ public class DispatcherAdapter extends Observable {
         System.out.println("leave room message: " + body);
         //get room from body
         String[] info = body.split("\\|");
-        Preconditions.checkArgument((info.length == 2 || info.length == 3) && info[0].equals("leave"), "Illegal leave room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
 
@@ -292,6 +291,8 @@ public class DispatcherAdapter extends Observable {
                 users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
                 users.get(id).getSession().getRemote().sendString(getChatBoxForUser(id).toJson());
             }
+            my_user.getSession().getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+            my_user.getSession().getRemote().sendString(getChatBoxForUser(my_user.getId()).toJson());
         } catch (IOException excpetion) {
             System.out.println("Failed when sending room information for user leaving room!");
         }
@@ -303,11 +304,11 @@ public class DispatcherAdapter extends Observable {
     }
 
     public void voluntaryLeaveRoom(Session session, String body) {
-        leaveRoom(session, body+" left_voluntarily.");
+        leaveRoom(session, body+"|left_voluntarily.");
     }
 
     public void ejectFromRoom(Session session, String body){
-        leaveRoom(session, body+" was_ejected_for_violating_chatroom_language_policy.");
+        leaveRoom(session, body+"|was_ejected_for_violating_chatroom_language_policy.");
     }
 
 
