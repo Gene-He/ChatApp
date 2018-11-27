@@ -182,16 +182,13 @@ public class DispatcherAdapter extends Observable {
     public void unloadRoom(int roomId) {
         rooms.get(roomId).removeAllUsers();
 
-        //TODO: send message to all users in the room, if there is a way to do this somewhere not inside the
-        // room window, which will be disappearing. This may be an action that occurs inside removeAllUsers()
-        // in ChatRoom.java.
-
-        //construct and send command to update joined/available lists of all users
         IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId));
         notifyObservers(cmd);
 
         //delete room from map.
         rooms.remove(roomId);
+
+        //TODO: call method to send room info, chat info
     }
 
 
@@ -223,6 +220,8 @@ public class DispatcherAdapter extends Observable {
             //add user as an observer of the room
             my_room.addUser(my_user);
 
+            //TODO: call method to send room info
+
         }
     }
 
@@ -234,7 +233,7 @@ public class DispatcherAdapter extends Observable {
     public void leaveRoom(Session session, String body) {
         //get room from body
         String[] info = body.split(" ");
-        Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
+        Preconditions.checkArgument((info.length == 2 || info.length == 3) && info[0].equals("leave"), "Illegal leave room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
 
@@ -244,22 +243,34 @@ public class DispatcherAdapter extends Observable {
         //update joined/available rooms for this user
         my_user.moveToAvailable(my_room);
 
-        //remove user as observer for this room, broadcast message to room
-        my_room.removeUser(my_user, "user left voluntarily.");
+        //remove user as observer for this room
+        my_room.removeUser(my_user, " ");
 
+        //add notification to room, with reason
+        if(info.length == 3) {
+            String new_notification = my_user.getName();
+            String[] notification_words = info[2].split("_");
+            for(String s: notification_words) {
+                new_notification += (" "+s);
+            }
+            my_room.addNotification(new_notification);
+        }
+
+
+        //TODO: call method to send room info
 
         //delete room if this user is the owner
         if(my_room.getOwner() == my_user) unloadRoom(roomId);
 
+
     }
 
     public void voluntaryLeaveRoom(Session session, String body) {
-
-        leaveRoom(session, body);
+        leaveRoom(session, body+" left_voluntarily.");
     }
-    public void ejectFromRoom(Session session, String body){
 
-        leaveRoom(session, body);
+    public void ejectFromRoom(Session session, String body){
+        leaveRoom(session, body+" was_ejected_for_violating_chatroom_language_policy.");
     }
 
     // TODO: I question the need for this method. We don't have to allow this. (-Alex)
