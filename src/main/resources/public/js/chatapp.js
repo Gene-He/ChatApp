@@ -9,11 +9,6 @@ window.onload = function() {
 
     webSocket.onclose = () => alert("WebSocket connection closed");
 
-    // TODO button event handler to the Send Message  to Server.
-    $("#btn-msg").click(function () {
-
-        sendMessage(msg_str);
-    });
 
     // TODO call updateChatRoom every time a message is received from the server
     webSocket.onmessage = (event) => updateChatRoom(event.data);
@@ -53,6 +48,7 @@ function updateChatRoom(message) {
 
     }
     if(message['type'] === "UserRooms"){
+        updateHelloUser(message['username']);
         updateRoomList(message);
         updateMyRooms(message);
     }
@@ -66,6 +62,11 @@ var roomListCardTemplate = "<div class=\"card\">" +
     "</div>";
 
 var roomListButtonTemplate = "<button type=\"button\" class=\"btn btn-[Type]\" onclick='joinRoom([RoomId])'>[Text]</button>";
+
+function updateHelloUser(name)
+{
+    document.getElementById("hello_user").innerHTML = "Hello, "+name+"!";
+}
 
 function addRoomListCard(roomName, roomId, type){
     var html = roomListCardTemplate.replace("[RoomName]", roomName);
