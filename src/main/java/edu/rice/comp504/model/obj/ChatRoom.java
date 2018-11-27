@@ -15,21 +15,21 @@ public class ChatRoom extends Observable {
     private int id;
     private String name;
     private User owner;
-    private int ageLowerBound;
-    private int ageUpperBound;
+    private transient int ageLowerBound;
+    private transient int ageUpperBound;
     private String[] locations;
     private String[] schools;
 
-    private DispatcherAdapter dis;
+    private transient DispatcherAdapter dis;
 
     // Maps user id to the user name
-    private Map<Integer, String> userNameFromUserId;
+    private transient Map<Integer, String> userNameFromUserId;
 
     // notifications contain why the user left, etc.
-    private List<String> notifications;
+    private transient List<String> notifications;
 
     // Maps key("smallId&largeId") to list of chat history strings
-    private Map<String, List<Message>> chatHistory;
+    private transient Map<String, List<Message>> chatHistory;
 
     /**
      * Constructor.
@@ -121,6 +121,7 @@ public class ChatRoom extends Observable {
      * @return boolean value indicating whether the user is eligible to join the room
      */
     public boolean applyFilter(User user) {
+        if (user == null) return false;
         int age = user.getAge();
         return age >= ageLowerBound && age <= ageUpperBound && checkMeetRestriction(locations,user.getLocation()) &&
                 checkMeetRestriction(schools,user.getSchool());

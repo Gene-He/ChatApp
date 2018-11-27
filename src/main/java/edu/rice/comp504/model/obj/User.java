@@ -19,8 +19,8 @@ public class User implements Observer {
     private String location;
     private String school;
 
-    private List<Integer> joinedRoomIds;
-    private List<Integer> availableRoomIds;
+    private transient List<Integer> joinedRoomIds;
+    private transient List<Integer> availableRoomIds;
 
     /**
      * Constructor.
@@ -121,7 +121,7 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void addRoom(ChatRoom room) {
-        int roomId=room.getId();
+        int roomId = room.getId();
 
         if(room.applyFilter(this))
             this.availableRoomIds.add(roomId);
@@ -132,13 +132,13 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void removeRoom(ChatRoom room) {
-        int roomId=room.getId();
+        int roomId = room.getId();
 
         if (joinedRoomIds.contains(roomId))
-            this.joinedRoomIds.remove(roomId);
+            this.joinedRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
 
         if (availableRoomIds.contains(roomId))
-            this.availableRoomIds.remove(roomId);
+            this.availableRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
     }
 
     /**
@@ -146,9 +146,12 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void moveToJoined(ChatRoom room) {
-        int roomId=room.getId();
-        this.availableRoomIds.remove(roomId);
-        this.joinedRoomIds.add(roomId);
+        int roomId = room.getId();
+        int index = availableRoomIds.indexOf(roomId);
+        if (index >= 0) {
+            availableRoomIds.remove(index);
+            joinedRoomIds.add(roomId);
+        }
     }
 
     /**
@@ -159,7 +162,7 @@ public class User implements Observer {
         int roomId=room.getId();
 
         this.availableRoomIds.add(roomId);
-        this.joinedRoomIds.remove(roomId);
+        this.joinedRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
     }
 
     /**

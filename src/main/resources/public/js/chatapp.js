@@ -22,7 +22,6 @@ window.onload = function() {
  * @param msg  The message to send to the server.
  */
 function sendMessage(msg) {
-    console.log("Sending: "+ msg);
     webSocket.send(msg);
 }
 
@@ -32,7 +31,7 @@ function sendMessage(msg) {
  */
 function updateChatRoom(data) {
     var message = JSON.parse(data);
-    console.log("Receiving: " + message.toString());
+    console.log(message);
     if(message['type'] === "NewUserResponse"){
 
     }
@@ -52,7 +51,6 @@ function updateChatRoom(data) {
         updateHelloUser(message['username']);
         updateRoomList(message);
         updateMyRooms(message);
-        toggleLogin();
     }
 }
 
@@ -106,15 +104,17 @@ function addRoomListCard(roomName, roomId, type){
 
 function updateRoomList(message){
     message["ownedRooms"].forEach(function (room) {
-        addRoomListCard(room["Name"], room["Id"], "owned");
+        // TODO: disable this button
+        addRoomListCard(room["name"], room["id"], "owned");
     });
 
     message["availableRooms"].forEach(function (room) {
-        addRoomListCard(room["Name"], room["Id"], "join");
+        addRoomListCard(room["name"], room["id"], "join");
     });
 
-    message["ownedRooms"].forEach(function (room) {
-        addRoomListCard(room["Name"], room["Id"], "owned");
+    message["joinedRooms"].forEach(function (room) {
+        // TODO: disable this button
+        addRoomListCard(room["name"], room["Id"], "joined");
     });
 }
 
@@ -138,10 +138,12 @@ function createUserInfo()
     var age = document.getElementById("reg_age").value;
     var loc = document.getElementById("reg_location").value;
     var sch =  document.getElementById("reg_school").value;
+    // TODO: user name does not allow space
     // Format: login [userName] [age] [location] [school]
     var user_str = "login " + uname + " " + age + " " + loc+ " " + sch;
     sendMessage(user_str);
     document.getElementById("login_close").click();
+    toggleLogin();
 }
 
 /**
@@ -149,18 +151,21 @@ function createUserInfo()
  */
 function createRoomInfo()
 {
-    setTimeout(function() {
-        document.getElementById("createroom_close").click(); // Click on the checkbox
-    }, 4000);
+//    setTimeout(function() {
+//        document.getElementById("createroom_close").click(); // Click on the checkbox
+//    }, 4000);
     var rname = document.getElementById("reg_roomname").value;
     var minage = document.getElementById("reg_minage").value;
     var maxage = document.getElementById("reg_maxage").value;
     var r_loc = document.getElementById("r_location").value;
     var r_sch =  document.getElementById("r_school").value;
+
     // Grammar: create [roomName] [ageLower] [ageUpper] f[location],g*f[location]g f[school],g*f[school]g
+    // TODO: room name does not allow space
     var room_str = "create "+rname +" "+ minage +" "+ maxage+ " " + r_loc +" " + r_sch;
 
     sendMessage(room_str);
+    document.getElementById("createroom_close").click(); // Click on the checkbox
 }
 
 function getRoomTemplate(title){

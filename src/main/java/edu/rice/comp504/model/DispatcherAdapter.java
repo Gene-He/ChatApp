@@ -86,7 +86,7 @@ public class DispatcherAdapter extends Observable {
      * @return the new user that has been loaded
      */
     public User loadUser(Session session, String body) {
-        String[] tokens = body.split(" ");
+        String[] tokens = body.split("|");
         int userId = getUserIdFromSession(session);
         User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
                 tokens[3], tokens[4], null);
@@ -116,37 +116,48 @@ public class DispatcherAdapter extends Observable {
      */
     public ChatRoom loadRoom(Session session, String body) {
         //get this user
-        int user_id = getUserIdFromSession(session);
-        User my_user = users.get(user_id);
+        int userId = getUserIdFromSession(session);
+        User user = users.get(userId);
+
+        if (user == null) {
+            return null;
+        }
 
         //check the specifications in the body
-        String[] info = body.split(" ");
+        String[] info = body.split("|");
         Preconditions.checkArgument(info.length == 6 && info[0].equals("create"), "Illegal create room message format: %s", body);
         String roomName = info[1];
         int ageLower = Integer.parseInt(info[2]);
         int ageUpper = Integer.parseInt(info[3]);
 
         //construct the room
-        ChatRoom my_room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, my_user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
+        ChatRoom room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
 
-        if(!my_room.applyFilter(my_user)) {
-
-            return null;
-
-        } else {
-
-            rooms.put(my_room.getId(), my_room);
+        if(true/*room.applyFilter(user)*/) { // TODO: revert this after testing
+            rooms.put(room.getId(), room);
 
             //update user's join list
-            my_user.addRoom(my_room);
-            my_user.moveToJoined(my_room);
+            user.addRoom(room);
+            user.moveToJoined(room);
 
             //This command now has the DA as a member, and will perform the session.getRemote to send the response.
-            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room, this);
+            IUserCmd cmd = CmdFactory.makeAddRoomCmd(room, this);
             notifyObservers(cmd);
-
-            return my_room;
         }
+        else {
+            room = null;
+        }
+
+        try {
+            session.getRemote().sendString(getRoomsForUser(userId).toJson());
+        }
+        catch (IOException exception) {
+            System.out.println("Failed when sending room information upon user creating room!");
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return room;
     }
 
     /**
@@ -195,7 +206,7 @@ public class DispatcherAdapter extends Observable {
      */
     public void joinRoom(Session session, String body) {
         //get room from body
-        String[] info = body.split(" ");
+        String[] info = body.split("|");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -218,7 +229,8 @@ public class DispatcherAdapter extends Observable {
 
             try {
                 session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
-            } catch (IOException excpetion) {
+            }
+            catch (IOException exception) {
                 System.out.println("Failed when sending room information upon user joining room!");
             }
         }
@@ -231,7 +243,7 @@ public class DispatcherAdapter extends Observable {
      */
     public void leaveRoom(Session session, String body) {
         //get room from body
-        String[] info = body.split(" ");
+        String[] info = body.split("|");
         Preconditions.checkArgument((info.length == 2 || info.length == 3) && info[0].equals("leave"), "Illegal leave room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -296,16 +308,12 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId receiverId rawMessage"
      */
     public void sendMessage(Session session, String body) {
-        String[] info = body.split(" ");
+        String[] info = body.split("|");
         int messageId = nextMessageId.getAndIncrement();
         int roomId = Integer.parseInt(info[1]);
         int receiverId = Integer.parseInt(info[2]);
         int senderId = userIdFromSession.get(session);
-        StringBuilder messageBuilder = new StringBuilder(info[3]);
-        for (int i = 4;i < info.length;i++) {
-            messageBuilder.append(" " + info[i]);
-        }
-        String message = messageBuilder.toString();
+        String message = info[3];
 
         // TODO: check if this message contain unallowed words
         if (Arrays.asList(message.split(" ")).contains("hate")) {
@@ -331,13 +339,9 @@ public class DispatcherAdapter extends Observable {
      * body string format: "broadcast [roomId] [message]"
      */
     public void broadcastMessage(Session session, String body) {
-        String[] info = body.split(" ");
+        String[] info = body.split("|");
         int roomId = Integer.parseInt(info[1]);
-        StringBuilder messageBuilder = new StringBuilder(info[3]);
-        for (int i = 4;i < info.length;i++) {
-            messageBuilder.append(" " + info[i]);
-        }
-        String broadCastMsg = messageBuilder.toString();
+        String broadCastMsg = info[3];
 
         // Check if broadcast message has illegal words.
         if (Arrays.asList(broadCastMsg.split(" ")).contains("hate")) {
@@ -367,7 +371,7 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "msgId"
      */
     public void ackMessage(Session session, String body) {
-        String[] info = body.split(" ");
+        String[] info = body.split("|");
         int msgId = Integer.parseInt(info[1]);
         Message message = messages.get(msgId);
         message.setIsReceived(true);
@@ -441,8 +445,8 @@ public class DispatcherAdapter extends Observable {
 
     public AResponse getRoomsForUser(int userId) {
         Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
-        Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
-        Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> joinedRooms    = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> ownedRooms     = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() == userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
 
         return new UserRoomsResponse("UserRooms", userId, users.get(userId).getName(), ownedRooms, joinedRooms, availableRooms);
     }
