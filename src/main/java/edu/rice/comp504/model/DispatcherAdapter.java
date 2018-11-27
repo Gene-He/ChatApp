@@ -57,16 +57,7 @@ public class DispatcherAdapter extends Observable {
      */
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
-        advanceCounter(nextUserId.get());
-        userIdFromSession.put(session, nextUserId.get());
-    }
-
-    /**
-     * Separate method to apply operator ++, but within a synchronized method
-     * @param counter
-     */
-    public synchronized void advanceCounter(int counter) {
-        counter++;
+        userIdFromSession.put(session, nextUserId.getAndIncrement());
     }
 
 
@@ -143,7 +134,7 @@ public class DispatcherAdapter extends Observable {
 
         } else {
 
-            rooms.put(nextRoomId.get(), my_room);
+            rooms.put(my_room.getId(), my_room);
 
             //update user's join list
             my_user.addRoom(my_room);
