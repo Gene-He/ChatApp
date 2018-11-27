@@ -135,10 +135,10 @@ public class User implements Observer {
         int roomId=room.getId();
 
         if (joinedRoomIds.contains(roomId))
-            this.joinedRoomIds.remove(roomId);
+            this.joinedRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
 
         if (availableRoomIds.contains(roomId))
-            this.availableRoomIds.remove(roomId);
+            this.availableRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
     }
 
     /**
@@ -147,7 +147,7 @@ public class User implements Observer {
      * */
     public void moveToJoined(ChatRoom room) {
         int roomId=room.getId();
-        this.availableRoomIds.remove(roomId);
+        this.availableRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
         this.joinedRoomIds.add(roomId);
     }
 
@@ -159,7 +159,7 @@ public class User implements Observer {
         int roomId=room.getId();
 
         this.availableRoomIds.add(roomId);
-        this.joinedRoomIds.remove(roomId);
+        this.joinedRoomIds.remove(this.joinedRoomIds.indexOf(roomId));
     }
 
     /**
