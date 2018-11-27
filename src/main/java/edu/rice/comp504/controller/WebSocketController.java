@@ -2,6 +2,7 @@ package edu.rice.comp504.controller;
 
 import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.DispatcherAdapter;
+import edu.rice.comp504.model.obj.ChatRoom;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -47,6 +48,8 @@ public class WebSocketController {
             sendMessageAction(user, message);
         } else if (info[0].equals("ack")) {
             ackMessageAction(user, message);
+        } else if (info[0].equals("broadcast")) {
+            broadcastMessageAction(user, message);
         } else if (info.length > 1) {
             if (info[0].equals("query") && info[1].equals("roomUsers")) {
                 queryUsersOfRoomAction(user, message);
@@ -64,7 +67,8 @@ public class WebSocketController {
      */
     @OnWebSocketClose
     public void onClose(Session user, int statusCode, String reason) {
-
+        DispatcherAdapter dis = ChatAppController.getDispatcher();
+        dis.unloadUser(dis.getUserIdFromSession(user));
     }
 
     /**
@@ -158,8 +162,19 @@ public class WebSocketController {
      * @param message
      */
     private void sendMessageAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(" ").length == 4, "Illegal sendMessage message format: %s", message);
         ChatAppController.getDispatcher().sendMessage(user, message);
+    }
+
+    /**
+     * For a broadcast request, we have message format like:
+     * broadcast roomId message
+     * eg:
+     * "broadcast 30 Hi, y'all"
+     * @param user
+     * @param message
+     */
+    private void broadcastMessageAction(Session user, String message) {
+        ChatAppController.getDispatcher().broadcastMessage(user, message);
     }
 
     /**
