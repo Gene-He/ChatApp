@@ -31,6 +31,7 @@ function sendMessage(msg) {
  */
 function updateChatRoom(data) {
     var message = JSON.parse(data);
+    console.log(message);
     if(message['type'] === "NewUserResponse"){
 
     }
@@ -104,16 +105,16 @@ function addRoomListCard(roomName, roomId, type){
 function updateRoomList(message){
     message["ownedRooms"].forEach(function (room) {
         // TODO: disable this button
-        addRoomListCard(room["Name"], room["Id"], "owned");
+        addRoomListCard(room["name"], room["id"], "owned");
     });
 
     message["availableRooms"].forEach(function (room) {
-        addRoomListCard(room["Name"], room["Id"], "join");
+        addRoomListCard(room["name"], room["id"], "join");
     });
 
     message["joinedRooms"].forEach(function (room) {
         // TODO: disable this button
-        addRoomListCard(room["Name"], room["Id"], "joined");
+        addRoomListCard(room["name"], room["Id"], "joined");
     });
 }
 
