@@ -17,6 +17,11 @@ window.onload = function() {
 
     // TODO call updateChatRoom every time a message is received from the server
     webSocket.onmessage = (event) => updateChatRoom(event.data);
+
+    //test render chatroom
+    var room = document.getElementById("room-card-body");
+    room.appendChild(getRoomTemplate("New block"));
+
 }
 
 /**
@@ -63,4 +68,71 @@ function createRoomInfo()
     //alert(room_str);
     sendMessage(room_str);
     document.getElementById("createRoomResult").innerHTML = "Create Success!";
+}
+
+function getRoomTemplate(title){
+    return parseDom(
+        '<div class="container"> \
+            <div class="card"> \
+                <div class="card-header"> \
+                    <div class="d-flex justify-content-between"> \
+                        <h5 class="card-title">' + title + '</h5> \
+                        <button type="button" class="btn btn-danger btn-sm" >Leave</button> \
+                    </div> \
+                </div> \
+                <div class="card-body"> \
+                    <table class="table">' + createUserTable().innerHTML + '</table>' +
+                    createNotificationBlock() +
+                '</div> \
+            </div> \
+        </div>');
+}
+
+function createNotificationBlock(){
+    var block = "";
+    var notifications  = ["A broadcasts : This is a broadcast.","B broadcasts : This is also a broadcast.","C left room"]
+    for (var i = 0; i < notifications.length; i++){
+        block += '<div class="alert alert-primary" role="alert">\ '+
+                     '<p>' +notifications[i] + '</p>\</div>';
+    }
+    block += '<div class="input-group mb-3">\
+                 <input type="text" class="form-control" placeholder="Broadcast..." aria-label="Recipient\'s username" aria-describedby="button-addon2">\
+                 <div class="input-group-append">\
+                     <button class="btn btn-outline-secondary" type="button" id="button-addon2">Send</button>\
+                 </div>\
+               </div>'
+    return block;
+}
+
+
+function parseDom(arg) {
+    var objE = document.createElement("div");
+    objE.innerHTML = arg;
+    return objE.childNodes[0];
+}
+function createUserTable(){
+    //test example
+    var users = ["Allen","Bob","Cindy","Emma"];
+    var owner = "Allen";
+    var chatUser = "Bob";
+    var login = "Cindy";
+
+    var tbl  = document.createElement('table');
+    for(var i = 0; i < users.length; i++) {
+        if (users[i] == login) continue;
+        var tr = tbl.insertRow();
+        var td = tr.insertCell();
+        var user = parseDom("<div class=\"d-flex justify-content-between\"></div>")
+        var p = document.createElement('p');
+        p.innerHTML = users[i];
+        user.appendChild(p);
+        if (users[i] == owner) {
+            p.appendChild(parseDom('<span class=\"badge badge-primary\">Owner</span>'));
+        }
+        if (users[i] != chatUser) {
+            user.appendChild(parseDom('<button class="btn btn-success btn-sm">Chat</button>'));
+        }
+        td.append(user);
+    }
+    return tbl;
 }
