@@ -6,17 +6,8 @@ const webSocket = new WebSocket("ws://" + location.hostname + ":" + location.por
  * Entry point into chat room
  */
 window.onload = function() {
-
     webSocket.onclose = () => alert("WebSocket connection closed");
-
-
-    // TODO call updateChatRoom every time a message is received from the server
     webSocket.onmessage = (event) => updateChatRoom(event.data);
-
-    //test render chatroom
-//    var room = document.getElementById("room-card-body");
-//    room.appendChild(getRoomTemplate("New block"));
-
 }
 
 /**
@@ -52,6 +43,7 @@ function updateChatRoom(data) {
         updateHelloUser(message['username']);
         updateRoomList(message);
         updateMyRooms(message);
+        toggleLogin();
     }
 }
 
@@ -67,6 +59,16 @@ var roomListButtonTemplate = "<button type=\"button\" class=\"btn btn-[Type]\" o
 function updateHelloUser(name)
 {
     document.getElementById("hello_user").innerHTML = "Hello, "+name+"!";
+}
+
+function toggleLogin() {
+    var current = $("#id_login").text()
+    if (current === 'Login') {
+        $("#id_login").text('Update Profile');
+    }
+    else {
+        $("#id_login").text('Login');
+    }
 }
 
 function addRoomListCard(roomName, roomId, type){
@@ -120,9 +122,9 @@ function updateMyChats(message){
  */
 function createUserInfo()
 {
-    setTimeout(function() {
-        document.getElementById("login_close").click();
-    }, 4000);
+//    setTimeout(function() {
+//        document.getElementById("login_close").click();
+//    }, 4000);
     var uname = document.getElementById("reg_username").value;
     var age = document.getElementById("reg_age").value;
     var loc = document.getElementById("reg_location").value;
@@ -130,6 +132,7 @@ function createUserInfo()
     // Format: login [userName] [age] [location] [school]
     var user_str = "login " + uname + " " + age + " " + loc+ " " + sch;
     sendMessage(user_str);
+    document.getElementById("login_close").click();
 }
 
 /**
