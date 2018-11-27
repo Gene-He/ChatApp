@@ -128,12 +128,10 @@ function updateMyRooms(message){
         roomCard.appendChild(getRoomTemplate(room));
     });
     $(".btn-start-chat").click(function (event) {
-        //TODO Send request
-        var userId = $(event.target.parentElement.childNodes[0]).attr("userId");
-
-        var roomInfo = getChatRoomNameFromUser(event.target);
-        var roomId = roomInfo.id;
-        console.log("start chat : userId = " + userId + "roomId = "+ roomId);
+       // // query userChatHistory [roomId] [anotherUserId]
+       //  var roomInfo = getChatRoomNameFromUser(event.target);
+       //  var user_str = "query|userChatHistory|" + roomInfo.id + "|" + $(event.target.parentElement.childNodes[0]).attr("userId");
+       //  sendMessage(user_str);
         openChatDialog($(event.target.parentElement.childNodes[0]).attr("name"),roomInfo.name);
     });
 }
@@ -212,7 +210,7 @@ function createNotificationBlock(room){
     block += '<div class="input-group mb-3">\
                  <input type="text" class="form-control" placeholder="Broadcast..." aria-label="Recipient\'s username" aria-describedby="button-addon2">\
                  <div class="input-group-append">\
-                     <button class="btn btn-outline-secondary" type="button" id="button-addon2">Send</button>\
+                     <button class="btn btn-outline-secondary" type="button" id="button-addon2 " onclick=sendBroadCast('+room["id"]+',this.parentNode.parentNode)>Send</button>\
                  </div>\
                </div>'
     return block;
@@ -286,6 +284,13 @@ function getChatTemplate(userName,roomName,chatHistory){
              </div>\
         </div>');
 
+}
+
+function sendBroadCast(roomId,node){
+    console.log(roomId);
+    console.log(node.getElementsByTagName("input")[0].value);
+  // Grammar : broadcast [roomId] [message]
+    sendMessage("broadcast|" + roomId +"|"+node.getElementsByTagName("input")[0].value);
 }
 
 function getChatRoomNameFromUser(node){
