@@ -295,7 +295,11 @@ public class DispatcherAdapter extends Observable {
         int roomId = Integer.parseInt(info[1]);
         int receiverId = Integer.parseInt(info[2]);
         int senderId = userIdFromSession.get(session);
-        String message = info[3];
+        StringBuilder messageBuilder = new StringBuilder(info[3]);
+        for (int i = 4;i < info.length;i++) {
+            messageBuilder.append(" " + info[i]);
+        }
+        String message = messageBuilder.toString();
 
         // TODO: check if this message contain unallowed words
         if (Arrays.asList(message.split(" ")).contains("hate")) {
@@ -312,6 +316,42 @@ public class DispatcherAdapter extends Observable {
             users.get(receiverId).getSession().getRemote().sendString(getChatBoxForUser(receiverId).toJson());
         } catch (IOException excpetion) {
             System.out.println("Failed when sending message received confirmation!");
+        }
+    }
+
+    /**
+     * The owner of a room broadcast a message.
+     *
+     * body string format: "broadcast [roomId] [message]"
+     */
+    public void broadcastMessage(Session session, String body) {
+        String[] info = body.split(" ");
+        int roomId = Integer.parseInt(info[1]);
+        StringBuilder messageBuilder = new StringBuilder(info[3]);
+        for (int i = 4;i < info.length;i++) {
+            messageBuilder.append(" " + info[i]);
+        }
+        String broadCastMsg = messageBuilder.toString();
+
+        // Check if broadcast message has illegal words.
+        if (Arrays.asList(broadCastMsg.split(" ")).contains("hate")) {
+            // Kick out the owner of this room, basically means unload this room.
+            unloadRoom(roomId);
+            return;
+        }
+
+        // Put broadcast message into notification list.
+        rooms.get(roomId).getNotifications().add(broadCastMsg);
+
+        // Send back response to all users in this room.
+        rooms.get(roomId).getUsers().keySet().stream().forEach(userId -> constructAndSendResponseForUser(userId));
+    }
+
+    private void constructAndSendResponseForUser(int userId) {
+        try {
+            users.get(userId).getSession().getRemote().sendString(getRoomsForUser(userId).toJson());
+        } catch (IOException exception) {
+            System.out.println("Failed when send updated rooms for user: "+userId);
         }
     }
 
