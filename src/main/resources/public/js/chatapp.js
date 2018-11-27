@@ -26,8 +26,8 @@ function sendMessage(msg) {
  * @param message  The message to update the chat room with.
  */
 function updateChatRoom(data) {
+    console.log("Receiving: " + data);
     var message = JSON.parse(data);
-    console.log("Receiving: " + message);
     if(message['type'] === "NewUserResponse"){
 
     }
@@ -58,7 +58,8 @@ var roomListCardTemplate = "<div class=\"card\">" +
     "</div>" +
     "</div>";
 
-var roomListButtonTemplate = "<button type=\"button\" class=\"btn btn-[Type]\" onclick='joinRoom([RoomId])'>[Text]</button>";
+var roomListButtonTemplateOnclick = "<button type=\"button\" class=\"btn btn-primary\" onclick='joinRoom([RoomId])'>[Text]</button>";
+var roomListButtonTemplate = "<button type=\"button\" class=\"btn btn-info\"'>[Text]</button>";
 
 function updateHelloUser(name)
 {
@@ -79,29 +80,26 @@ function addRoomListCard(roomName, roomId, type){
     var html = roomListCardTemplate.replace("[RoomName]", roomName);
     var buttonHTML = "<p>dummy text</p>";
     if (type === "join"){
-        buttonHTML = roomListButtonTemplate.replace("[Type]", "primary");
-        buttonHTML = buttonHTML.replace("[Text]", "Join");
+        buttonHTML = roomListButtonTemplateOnclick.replace("[Text]", "Join");
+        buttonHTML = buttonHTML.replace("[RoomId]", roomId);
     }
     else if (type === "joined"){
-        buttonHTML = roomListButtonTemplate.replace("[Type]", "info");
-        buttonHTML = buttonHTML.replace("[Text]", "Joined");
+        buttonHTML = roomListButtonTemplate.replace("[Text]", "Joined");
     }
     else if (type === "owned"){
-        buttonHTML = roomListButtonTemplate.replace("[Type]", "info");
-        buttonHTML = buttonHTML.replace("[Text]", "Owned");
+        buttonHTML = roomListButtonTemplate.replace("[Text]", "Owned");
     }
     else{
         alert("Bad room type");
         return;
     }
-    buttonHTML = buttonHTML.replace("[RoomId]", roomId);
     html = html.replace("[Button]", buttonHTML);
     $("#room-list").append(html);
 }
 
 function updateRoomList(message){
+    $("#room-list").empty();
     message["ownedRooms"].forEach(function (room) {
-        // TODO: disable this button
         addRoomListCard(room["name"], room["id"], "owned");
     });
 
@@ -110,7 +108,6 @@ function updateRoomList(message){
     });
 
     message["joinedRooms"].forEach(function (room) {
-        // TODO: disable this button
         addRoomListCard(room["name"], room["Id"], "joined");
     });
 }
