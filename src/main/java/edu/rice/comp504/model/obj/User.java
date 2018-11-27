@@ -45,8 +45,10 @@ public class User implements Observer {
         this.joinedRoomIds = new LinkedList<>();
         this.availableRoomIds = new LinkedList<>();
 
-        for (ChatRoom room : rooms) {
-            this.availableRoomIds.add(room.getId());
+        if (rooms != null) {
+            for (ChatRoom room : rooms) {
+                this.availableRoomIds.add(room.getId());
+            }
         }
     }
 

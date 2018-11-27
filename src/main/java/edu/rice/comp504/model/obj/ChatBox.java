@@ -12,7 +12,6 @@ public class ChatBox {
     private int anotherUserId;
     private String anotherUserName;
 
-
     private List<Message> chatHistory;
 
     public ChatBox(int roomId, String roomName, int userId, String username, List<Message> chatHistory) {

@@ -57,16 +57,7 @@ public class DispatcherAdapter extends Observable {
      */
     //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
-        advanceCounter(nextUserId.get());
-        userIdFromSession.put(session, nextUserId.get());
-    }
-
-    /**
-     * Separate method to apply operator ++, but within a synchronized method
-     * @param counter
-     */
-    public synchronized void advanceCounter(int counter) {
-        counter++;
+        userIdFromSession.put(session, nextUserId.getAndIncrement());
     }
 
 
@@ -96,18 +87,24 @@ public class DispatcherAdapter extends Observable {
      */
     public User loadUser(Session session, String body) {
         String[] tokens = body.split(" ");
-        int my_id = getUserIdFromSession(session);
-        User my_user = new User(my_id, session, tokens[0], Integer.valueOf(tokens[1]),
-                tokens[2], tokens[3], null);
-        users.put(my_id, my_user);
+        int userId = getUserIdFromSession(session);
+        User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
+                tokens[3], tokens[4], null);
+
+        users.put(userId, user);
 
         for(ChatRoom room: rooms.values()) {
-            if(room.applyFilter(my_user)) my_user.addRoom(room);
+            if(room.applyFilter(user)) user.addRoom(room);
         }
 
-        //TODO: call our two methods for sending room info and sending chat info
+        try {
+            session.getRemote().sendString(getChatBoxForUser(userId).toJson());
+            session.getRemote().sendString(getRoomsForUser(userId).toJson());
+        } catch (IOException exception) {
+            System.out.println("Failed when sending room information for new user on login!");
+        }
 
-        return my_user;
+        return user;
     }
 
 
@@ -138,15 +135,15 @@ public class DispatcherAdapter extends Observable {
 
         } else {
 
-            rooms.put(nextRoomId.get(), my_room);
+            rooms.put(my_room.getId(), my_room);
 
             //update user's join list
             my_user.addRoom(my_room);
             my_user.moveToJoined(my_room);
 
-            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room);
+            //This command now has the DA as a member, and will perform the session.getRemote to send the response.
+            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room, this);
             notifyObservers(cmd);
-            //TODO: send room info to all clients
 
             return my_room;
         }
@@ -182,12 +179,8 @@ public class DispatcherAdapter extends Observable {
     public void unloadRoom(int roomId) {
         rooms.get(roomId).removeAllUsers();
 
-        //TODO: send message to all users in the room, if there is a way to do this somewhere not inside the
-        // room window, which will be disappearing. This may be an action that occurs inside removeAllUsers()
-        // in ChatRoom.java.
-
-        //construct and send command to update joined/available lists of all users
-        IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId));
+        //This command now has the DA as a member, and will perform the session.getRemote to send the response.
+        IUserCmd cmd = CmdFactory.makeRemoveRoomCmd(rooms.get(roomId), this);
         notifyObservers(cmd);
 
         //delete room from map.
@@ -202,7 +195,7 @@ public class DispatcherAdapter extends Observable {
      */
     public void joinRoom(Session session, String body) {
         //get room from body
-        String[] info = body.split(",");
+        String[] info = body.split(" ");
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
@@ -223,6 +216,11 @@ public class DispatcherAdapter extends Observable {
             //add user as an observer of the room
             my_room.addUser(my_user);
 
+            try {
+                session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+            } catch (IOException excpetion) {
+                System.out.println("Failed when sending room information upon user joining room!");
+            }
         }
     }
 
@@ -234,7 +232,7 @@ public class DispatcherAdapter extends Observable {
     public void leaveRoom(Session session, String body) {
         //get room from body
         String[] info = body.split(" ");
-        Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
+        Preconditions.checkArgument((info.length == 2 || info.length == 3) && info[0].equals("leave"), "Illegal leave room message format: %s", body);
         int roomId = Integer.parseInt(info[1]);
         ChatRoom my_room = rooms.get(roomId);
 
@@ -244,23 +242,42 @@ public class DispatcherAdapter extends Observable {
         //update joined/available rooms for this user
         my_user.moveToAvailable(my_room);
 
-        //remove user as observer for this room, broadcast message to room
-        my_room.removeUser(my_user, "user left voluntarily.");
+        //remove user as observer for this room
+        my_room.removeUser(my_user, " ");
 
+        //add notification to room, with reason
+        if(info.length == 3) {
+            String new_notification = my_user.getName();
+            String[] notification_words = info[2].split("_");
+            for(String s: notification_words) {
+                new_notification += (" "+s);
+            }
+            my_room.addNotification(new_notification);
+        }
+
+
+        try {
+            session.getRemote().sendString(getChatBoxForUser(my_user.getId()).toJson());
+            session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
+        } catch (IOException excpetion) {
+            System.out.println("Failed when sending room information for user leaving room!");
+        }
 
         //delete room if this user is the owner
         if(my_room.getOwner() == my_user) unloadRoom(roomId);
 
+
     }
 
     public void voluntaryLeaveRoom(Session session, String body) {
-
-        leaveRoom(session, body);
+        leaveRoom(session, body+" left_voluntarily.");
     }
+
     public void ejectFromRoom(Session session, String body){
-
-        leaveRoom(session, body);
+        leaveRoom(session, body+" was_ejected_for_violating_chatroom_language_policy.");
     }
+
+
 
     // TODO: I question the need for this method. We don't have to allow this. (-Alex)
     // TODO: Deprecated
@@ -284,7 +301,11 @@ public class DispatcherAdapter extends Observable {
         int roomId = Integer.parseInt(info[1]);
         int receiverId = Integer.parseInt(info[2]);
         int senderId = userIdFromSession.get(session);
-        String message = info[3];
+        StringBuilder messageBuilder = new StringBuilder(info[3]);
+        for (int i = 4;i < info.length;i++) {
+            messageBuilder.append(" " + info[i]);
+        }
+        String message = messageBuilder.toString();
 
         // TODO: check if this message contain unallowed words
         if (Arrays.asList(message.split(" ")).contains("hate")) {
@@ -301,6 +322,42 @@ public class DispatcherAdapter extends Observable {
             users.get(receiverId).getSession().getRemote().sendString(getChatBoxForUser(receiverId).toJson());
         } catch (IOException excpetion) {
             System.out.println("Failed when sending message received confirmation!");
+        }
+    }
+
+    /**
+     * The owner of a room broadcast a message.
+     *
+     * body string format: "broadcast [roomId] [message]"
+     */
+    public void broadcastMessage(Session session, String body) {
+        String[] info = body.split(" ");
+        int roomId = Integer.parseInt(info[1]);
+        StringBuilder messageBuilder = new StringBuilder(info[3]);
+        for (int i = 4;i < info.length;i++) {
+            messageBuilder.append(" " + info[i]);
+        }
+        String broadCastMsg = messageBuilder.toString();
+
+        // Check if broadcast message has illegal words.
+        if (Arrays.asList(broadCastMsg.split(" ")).contains("hate")) {
+            // Kick out the owner of this room, basically means unload this room.
+            unloadRoom(roomId);
+            return;
+        }
+
+        // Put broadcast message into notification list.
+        rooms.get(roomId).getNotifications().add(broadCastMsg);
+
+        // Send back response to all users in this room.
+        rooms.get(roomId).getUsers().keySet().stream().forEach(userId -> constructAndSendResponseForUser(userId));
+    }
+
+    private void constructAndSendResponseForUser(int userId) {
+        try {
+            users.get(userId).getSession().getRemote().sendString(getRoomsForUser(userId).toJson());
+        } catch (IOException exception) {
+            System.out.println("Failed when send updated rooms for user: "+userId);
         }
     }
 
@@ -387,7 +444,7 @@ public class DispatcherAdapter extends Observable {
         Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
 
-        return new UserRoomsResponse("UserRooms", userId, ownedRooms, joinedRooms, availableRooms);
+        return new UserRoomsResponse("UserRooms", userId, users.get(userId).getName(), ownedRooms, joinedRooms, availableRooms);
     }
 
     public AResponse getChatBoxForUser(int userId) {
@@ -397,7 +454,7 @@ public class DispatcherAdapter extends Observable {
 
             room.getChatHistory().entrySet().stream().filter(entry -> isRelevant(userId, entry.getKey())).forEach(entry -> chatBoxes.add(new ChatBox(roomId, room.getName(), getAnotherUserId(userId, entry.getKey()), getAnotherUserName(userId, entry.getKey()), entry.getValue() )));
         }
-        return new UserChatHistoryResponse("UserChatHistory", chatBoxes);
+        return new UserChatHistoryResponse("UserChatHistory", users.get(userId).getName(), chatBoxes);
     }
 
     private boolean isRelevant(int userId, String key) {

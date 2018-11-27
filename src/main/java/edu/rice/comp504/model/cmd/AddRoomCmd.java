@@ -1,11 +1,15 @@
 package edu.rice.comp504.model.cmd;
 
+import edu.rice.comp504.model.DispatcherAdapter;
 import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.User;
+
+import java.io.IOException;
 
 class AddRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;
+    private DispatcherAdapter da;
 
     /**
      * Constructs an instance based on the message from clients.
@@ -13,8 +17,9 @@ class AddRoomCmd implements IUserCmd {
      * @param room the new room constructed by dispatcher
      * @Throws throws {@code IllegalArgumentException} if this message is not in required format.
      */
-    public AddRoomCmd(ChatRoom room) {
-       this.chatRoom = room;
+    public AddRoomCmd(ChatRoom room, DispatcherAdapter da) {
+        this.chatRoom = room;
+        this.da = da;
     }
 
     /**
@@ -32,6 +37,13 @@ class AddRoomCmd implements IUserCmd {
             // Update this user with newly created room if this room is not in this user's available list.
             if (!context.getAvailableRoomIds().stream().anyMatch(roomdId -> roomdId == chatRoom.getId())) {
                 context.addRoom(chatRoom);
+
+                try {
+                    context.getSession().getRemote().sendString(da.getRoomsForUser(context.getId()).toJson());
+                } catch (IOException exception) {
+                    System.out.println("Failed when sending update that a new room has been created!");
+                }
+
             }
         }
     }

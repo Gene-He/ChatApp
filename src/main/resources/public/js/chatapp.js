@@ -9,18 +9,13 @@ window.onload = function() {
 
     webSocket.onclose = () => alert("WebSocket connection closed");
 
-    // TODO button event handler to the Send Message  to Server.
-    $("#btn-msg").click(function () {
-
-        sendMessage(msg_str);
-    });
 
     // TODO call updateChatRoom every time a message is received from the server
     webSocket.onmessage = (event) => updateChatRoom(event.data);
 
     //test render chatroom
-    var room = document.getElementById("room-card-body");
-    room.appendChild(getRoomTemplate("New block"));
+//    var room = document.getElementById("room-card-body");
+//    room.appendChild(getRoomTemplate("New block"));
 
     $(".btn-start-chat").click(function (event) {
         //TODO Send request
@@ -42,6 +37,85 @@ function sendMessage(msg) {
  * @param message  The message to update the chat room with.
  */
 function updateChatRoom(message) {
+    if(message['type'] === "NewUserResponse"){
+
+    }
+    if(message['type'] === "NewRoomResponse"){
+
+    }
+    if(message['type'] === "RoomNotificationResponse"){
+
+    }
+    if(message['type'] === "RoomUsersResponse"){
+
+    }
+    if(message['type'] === "UserChatHistory"){
+
+    }
+    if(message['type'] === "UserRooms"){
+        updateHelloUser(message['username']);
+        updateRoomList(message);
+        updateMyRooms(message);
+    }
+}
+
+var roomListCardTemplate = "<div class=\"card\">" +
+    "<div class=\"card-body\">" +
+    "<h5 class=\"card-title\">[RoomName]</h5>" +
+    "[Button]" +
+    "</div>" +
+    "</div>";
+
+var roomListButtonTemplate = "<button type=\"button\" class=\"btn btn-[Type]\" onclick='joinRoom([RoomId])'>[Text]</button>";
+
+function updateHelloUser(name)
+{
+    document.getElementById("hello_user").innerHTML = "Hello, "+name+"!";
+}
+
+function addRoomListCard(roomName, roomId, type){
+    var html = roomListCardTemplate.replace("[RoomName]", roomName);
+    var buttonHTML = "<p>dummy text</p>";
+    if (type === "join"){
+        buttonHTML = roomListButtonTemplate.replace("[Type]", "primary");
+        buttonHTML = buttonHTML.replace("[Text]", "Join");
+    }
+    else if (type === "joined"){
+        buttonHTML = roomListButtonTemplate.replace("[Type]", "info");
+        buttonHTML = buttonHTML.replace("[Text]", "Joined");
+    }
+    else if (type === "owned"){
+        buttonHTML = roomListButtonTemplate.replace("[Type]", "info");
+        buttonHTML = buttonHTML.replace("[Text]", "Owned");
+    }
+    else{
+        alert("Bad room type");
+        return;
+    }
+    buttonHTML = buttonHTML.replace("[RoomId]", roomId);
+    html = html.replace("[Button]", buttonHTML);
+    $("#room-list").append(html);
+}
+
+function updateRoomList(message){
+    message["ownedRooms"].forEach(function (room) {
+        addRoomListCard(room["Name"], room["Id"], "owned");
+    });
+
+    message["availableRooms"].forEach(function (room) {
+        addRoomListCard(room["Name"], room["Id"], "join");
+    });
+
+    message["ownedRooms"].forEach(function (room) {
+        addRoomListCard(room["Name"], room["Id"], "owned");
+    });
+}
+
+function updateMyRooms(message){
+
+}
+
+function updateMyChats(message){
 
 }
 
@@ -57,10 +131,9 @@ function createUserInfo()
     var age = document.getElementById("reg_age").value;
     var loc = document.getElementById("reg_location").value;
     var sch =  document.getElementById("reg_school").value;
-    // Grammar: login [userName] [age] [location] [school]
-    var user_str = "login "+uname +" "+ age +" "+ loc+" " + sch;
-     sendMessage(user_str);
-
+    // Format: login [userName] [age] [location] [school]
+    var user_str = "login " + uname + " " + age + " " + loc+ " " + sch;
+    sendMessage(user_str);
 }
 
 /**
@@ -148,6 +221,11 @@ function createUserTable(){
         td.append(user);
     }
     return tbl;
+}
+
+function joinRoom(roomId){
+    // Grammar: join [roomId]
+    sendMessage("join " + roomId);
 }
 function openChatDialog(userName,roomName){
     var room = document.getElementById("chat-box");

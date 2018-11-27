@@ -165,8 +165,11 @@ public class ChatRoom extends Observable {
         }
         userNameFromUserId.remove(user.getId());
         freeChatHistory(user);
-        notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
-        //notifyObservers(new LeaveRoomCmd("leave,"+id));
+        //TODO: I think we don't need this command below. If all users need to leave the room, this is now handled with the
+        //RemoveRoomCmd, issued from the DA.  (-Alex)
+        // notifyObservers(CmdFactory.makeLeaveRoomCmd(this,user));
+        //TODO: We should ignore the "reason" argument of this method and use addNotification to add messages to the
+        //room's list of notifications. I have done this in the DA. (-Alex)
         //notifications.add(user.getName()+ " left this room because " + reason);
         deleteObserver(user);
         return true;
