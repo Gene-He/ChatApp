@@ -407,7 +407,8 @@ public class DispatcherAdapter extends Observable {
     public void query(Session session, String body) {
         System.out.println("Query chatBox message: " + body);
 
-        String[] info = body.split("//|");
+        String[] info = body.split("\\|");
+        
         int roomId = Integer.parseInt(info[2]);
         int thisUserId = getUserIdFromSession(session);
         int anotherUserId = Integer.parseInt(info[3]);
