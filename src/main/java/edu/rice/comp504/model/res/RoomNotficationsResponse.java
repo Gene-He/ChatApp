@@ -5,17 +5,21 @@ import java.util.List;
 public class RoomNotficationsResponse extends AResponse {
 
     private int roomId;
-    private List<String> notifications;
+    private String roomName;
+    private int anotherUserId;
+    private String anotherUsername;
 
     /**
      * Constructor.
      *
      * @param type the type of the response, i.e. the name of class
      */
-    public RoomNotficationsResponse(String type, int roomId, List<String> notifications) {
+    public RoomNotficationsResponse(String type, int roomId, String roomName, int anotherUserId, String anotherUsername) {
         super(type);
         this.roomId = roomId;
-        this.notifications = notifications;
+        this.roomName = roomName;
+        this.anotherUserId = anotherUserId;
+        this.anotherUsername = anotherUsername;
     }
 
     public int getRoomId() {
@@ -26,11 +30,27 @@ public class RoomNotficationsResponse extends AResponse {
         this.roomId = roomId;
     }
 
-    public List<String> getNotifications() {
-        return notifications;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setNotifications(List<String> notifications) {
-        this.notifications = notifications;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public int getAnotherUserId() {
+        return anotherUserId;
+    }
+
+    public void setAnotherUserId(int anotherUserId) {
+        this.anotherUserId = anotherUserId;
+    }
+
+    public String getAnotherUsername() {
+        return anotherUsername;
+    }
+
+    public void setAnotherUsername(String anotherUsername) {
+        this.anotherUsername = anotherUsername;
     }
 }

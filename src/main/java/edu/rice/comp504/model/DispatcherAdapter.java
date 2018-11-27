@@ -351,7 +351,10 @@ public class DispatcherAdapter extends Observable {
 
         try {
             users.get(receiverId).getSession().getRemote().sendString(getChatBoxForUser(receiverId).toJson());
+            AResponse res = new RoomNotficationsResponse("RoomNotifications", roomId, rooms.get(roomId).getName(), senderId, users.get(senderId).getName());
+            users.get(receiverId).getSession().getRemote().sendString(res.toJson());
             users.get(senderId).getSession().getRemote().sendString(getChatBoxForUser(senderId).toJson());
+
         } catch (IOException excpetion) {
             System.out.println("Failed when sending message received confirmation!");
         }
