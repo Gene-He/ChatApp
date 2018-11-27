@@ -116,8 +116,12 @@ public class DispatcherAdapter extends Observable {
      */
     public ChatRoom loadRoom(Session session, String body) {
         //get this user
-        int user_id = getUserIdFromSession(session);
-        User my_user = users.get(user_id);
+        int userId = getUserIdFromSession(session);
+        User user = users.get(userId);
+
+        if (user == null) {
+            return null;
+        }
 
         //check the specifications in the body
         String[] info = body.split(" ");
@@ -127,26 +131,33 @@ public class DispatcherAdapter extends Observable {
         int ageUpper = Integer.parseInt(info[3]);
 
         //construct the room
-        ChatRoom my_room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, my_user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
+        ChatRoom room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
 
-        if(!my_room.applyFilter(my_user)) {
-
-            return null;
-
-        } else {
-
-            rooms.put(my_room.getId(), my_room);
+        if(true/*room.applyFilter(user)*/) { // TODO: revert this after testing
+            rooms.put(room.getId(), room);
 
             //update user's join list
-            my_user.addRoom(my_room);
-            my_user.moveToJoined(my_room);
+            user.addRoom(room);
+            user.moveToJoined(room);
 
             //This command now has the DA as a member, and will perform the session.getRemote to send the response.
-            IUserCmd cmd = CmdFactory.makeAddRoomCmd(my_room, this);
+            IUserCmd cmd = CmdFactory.makeAddRoomCmd(room, this);
             notifyObservers(cmd);
-
-            return my_room;
         }
+        else {
+            room = null;
+        }
+
+        try {
+            session.getRemote().sendString(getRoomsForUser(userId).toJson());
+        }
+        catch (IOException exception) {
+            System.out.println("Failed when sending room information upon user creating room!");
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return room;
     }
 
     /**
@@ -218,7 +229,8 @@ public class DispatcherAdapter extends Observable {
 
             try {
                 session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
-            } catch (IOException excpetion) {
+            }
+            catch (IOException exception) {
                 System.out.println("Failed when sending room information upon user joining room!");
             }
         }
@@ -441,8 +453,8 @@ public class DispatcherAdapter extends Observable {
 
     public AResponse getRoomsForUser(int userId) {
         Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
-        Set<ChatRoom> joinedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
-        Set<ChatRoom> ownedRooms = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> joinedRooms    = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
+        Set<ChatRoom> ownedRooms     = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() == userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
 
         return new UserRoomsResponse("UserRooms", userId, users.get(userId).getName(), ownedRooms, joinedRooms, availableRooms);
     }
