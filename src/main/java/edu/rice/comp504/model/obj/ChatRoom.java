@@ -197,7 +197,7 @@ public class ChatRoom extends Observable {
     private void freeChatHistory(User user) {
         for(Iterator<Map.Entry<String,List<Message>>> it = chatHistory.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String,List<Message>> entry = it.next();
-            String[] users = entry.getKey().split(",");
+            String[] users = entry.getKey().split("&");
             Preconditions.checkArgument(users.length == 2,"Illegal key of chatHistory");
             if (users[0].equals(user.getId()) || users[1].equals(user.getId())){
                 it.remove();
