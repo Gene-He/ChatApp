@@ -13,8 +13,6 @@ var ownerRoom = [];
 window.onload = function() {
     webSocket.onclose = () => alert("WebSocket connection closed");
     webSocket.onmessage = (event) => updateChatRoom(event.data);
-
-
 }
 
 /**
@@ -42,7 +40,9 @@ function updateChatRoom(data) {
     if(message['type'] === "NewRoomResponse"){
 
     }
-    if(message['type'] === "RoomNotificationResponse"){
+    if(message['type'] === "RoomNotifications"){
+        console.log("get RoomNotificationResponse");
+        showTip(message);
 
     }
     if(message['type'] === "RoomUsersResponse"){
@@ -376,4 +376,14 @@ function getChatHistory(chatHistory){
         }
     }
     return history;
+}
+
+function showTip(message) {
+    if (chattingUser != "" && message["anotherUserId"] == chattingUser["userId"]){
+        return;
+    }
+    var $tip = $('#tip');
+    console.log(message);
+    var text = message["anotherUsername"] + " from " + message["roomName"] + " send you a message!";
+    $tip.stop(true).prop('class', 'alert alert-' + "info").text(text).fadeIn(500).delay(2000).fadeOut(500);
 }
