@@ -37,6 +37,79 @@ function sendMessage(msg) {
  * @param message  The message to update the chat room with.
  */
 function updateChatRoom(message) {
+    if(message['type'] === "NewUserResponse"){
+
+    }
+    if(message['type'] === "NewRoomResponse"){
+
+    }
+    if(message['type'] === "RoomNotificationResponse"){
+
+    }
+    if(message['type'] === "RoomUsersResponse"){
+
+    }
+    if(message['type'] === "UserChatHistory"){
+
+    }
+    if(message['type'] === "UserRooms"){
+        updateRoomList(message);
+        updateMyRooms(message);
+    }
+}
+
+var roomListCardTemplate = "<div class=\"card\">" +
+    "<div class=\"card-body\">" +
+    "<h5 class=\"card-title\">[RoomName]</h5>" +
+    "[Button]" +
+    "</div>" +
+    "</div>";
+
+var roomListButtonTemplate = "<button type=\"button\" class=\"btn btn-[Type]\" onclick='joinRoom([RoomId])'>[Text]</button>";
+
+function addRoomListCard(roomName, roomId, type){
+    var html = roomListCardTemplate.replace("[RoomName]", roomName);
+    var buttonHTML = "<p>dummy text</p>";
+    if (type === "join"){
+        buttonHTML = roomListButtonTemplate.replace("[Type]", "primary");
+        buttonHTML = buttonHTML.replace("[Text]", "Join");
+    }
+    else if (type === "joined"){
+        buttonHTML = roomListButtonTemplate.replace("[Type]", "info");
+        buttonHTML = buttonHTML.replace("[Text]", "Joined");
+    }
+    else if (type === "owned"){
+        buttonHTML = roomListButtonTemplate.replace("[Type]", "info");
+        buttonHTML = buttonHTML.replace("[Text]", "Owned");
+    }
+    else{
+        alert("Bad room type");
+        return;
+    }
+    buttonHTML = buttonHTML.replace("[RoomId]", roomId);
+    html = html.replace("[Button]", buttonHTML);
+    $("#room-list").append(html);
+}
+
+function updateRoomList(message){
+    message["ownedRooms"].forEach(function (room) {
+        addRoomListCard(room["Name"], room["Id"], "owned");
+    });
+
+    message["availableRooms"].forEach(function (room) {
+        addRoomListCard(room["Name"], room["Id"], "join");
+    });
+
+    message["ownedRooms"].forEach(function (room) {
+        addRoomListCard(room["Name"], room["Id"], "owned");
+    });
+}
+
+function updateMyRooms(message){
+
+}
+
+function updateMyChats(message){
 
 }
 
@@ -142,4 +215,9 @@ function createUserTable(){
         td.append(user);
     }
     return tbl;
+}
+
+function joinRoom(roomId){
+    // Grammar: join [roomId]
+    sendMessage("join " + roomId);
 }
