@@ -1,6 +1,6 @@
 'use strict';
 
-const webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/chatapp");
+const webSocket = new WebSocket("wss://" + location.hostname + ":" + location.port + "/chatapp");
 var chattingUser = "";
 var username = "";
 var userId = "";
