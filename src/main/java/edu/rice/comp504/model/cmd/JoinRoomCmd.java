@@ -31,8 +31,7 @@ class JoinRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
-        boolean isInJoinedRoom = false;
-        isInJoinedRoom = context.getJoinedRoomIds().stream().anyMatch(roomId -> roomId == chatRoom.getId());
+        boolean isInJoinedRoom = context.getJoinedRoomIds().stream().anyMatch(roomId -> roomId == chatRoom.getId());
 
         if (isInJoinedRoom) {
            // Does nothing here since responses will be constructed and sent by DA.

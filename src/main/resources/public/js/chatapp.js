@@ -93,9 +93,6 @@ function toggleLogin() {
     if (current === 'Login') {
         $("#id_login").text('Update Profile');
     }
-    else {
-        $("#id_login").text('Login');
-    }
 }
 
 function addRoomListCard(roomName, roomId, type){

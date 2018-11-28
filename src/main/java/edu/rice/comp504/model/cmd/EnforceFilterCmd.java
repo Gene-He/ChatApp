@@ -5,6 +5,9 @@ import edu.rice.comp504.model.obj.User;
 
 import java.util.stream.Stream;
 
+/**
+ * Command to filter user in a chat room
+ */
 class EnforceFilterCmd implements IUserCmd {
 
     private ChatRoom chatRoom;
@@ -27,8 +30,7 @@ class EnforceFilterCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
-        boolean isInJoinedOrAvailableRoom = false;
-        isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
+        boolean isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
 
         if (chatRoom.applyFilter(context)) {
             // This user is qualified to join this room.
