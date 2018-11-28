@@ -64,7 +64,6 @@ public class DispatcherAdapter extends Observable {
         userIdFromSession.put(session, nextUserId.getAndIncrement());
     }
 
-
     /**
      * Get the user if from a session.
      * @param session the session
@@ -150,19 +149,22 @@ public class DispatcherAdapter extends Observable {
             IUserCmd cmd = CmdFactory.makeAddRoomCmd(room, this);
             setChanged();
             notifyObservers(cmd);
+
+            try {
+                for (int id : users.keySet()) {
+                    System.out.println("Send create room response for user: " + users.get(id).getName());
+                    users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
+                }
+            }
+            catch (IOException exception) {
+                System.out.println("Failed when sending room information upon user creating room!");
+            }
+            catch (WebSocketException e) {
+                System.out.println("Session not valid now");
+            }
         }
         else {
             room = null;
-        }
-
-        try {
-            for (int id : users.keySet()) {
-                System.out.println("Send create room response for user: " + users.get(id).getName());
-                users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
-            }
-        }
-        catch (IOException exception) {
-            System.out.println("Failed when sending room information upon user creating room!");
         }
 
         return room;
@@ -205,7 +207,6 @@ public class DispatcherAdapter extends Observable {
         setChanged();
         notifyObservers(cmd);
 
-        //delete room from map.
         rooms.remove(roomId);
     }
 
@@ -364,6 +365,8 @@ public class DispatcherAdapter extends Observable {
 
         } catch (IOException excpetion) {
             System.out.println("Failed when sending message received confirmation!");
+        } catch (WebSocketException e) {
+            System.out.println("Session not valid now");
         }
     }
 

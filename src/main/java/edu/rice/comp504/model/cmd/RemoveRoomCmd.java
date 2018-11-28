@@ -30,8 +30,7 @@ class RemoveRoomCmd implements IUserCmd {
      */
     @Override
     public void execute(User context) {
-        boolean isInJoinedOrAvailableRoom = false;
-        isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
+        boolean isInJoinedOrAvailableRoom = Stream.concat(context.getJoinedRoomIds().stream(), context.getAvailableRoomIds().stream()).anyMatch(roomId -> roomId == chatRoom.getId());
 
         if (isInJoinedOrAvailableRoom) {
             context.removeRoom(chatRoom);

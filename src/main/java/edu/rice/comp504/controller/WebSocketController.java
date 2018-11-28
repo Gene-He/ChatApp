@@ -2,20 +2,18 @@ package edu.rice.comp504.controller;
 
 import com.google.common.base.Preconditions;
 import edu.rice.comp504.model.DispatcherAdapter;
-import edu.rice.comp504.model.obj.ChatRoom;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
-import java.util.Arrays;
-
 /**
  * Create a web socket on server side.
  */
 @WebSocket
 public class WebSocketController {
+
 
     public static final String delimiter = "\\|";
     /**
