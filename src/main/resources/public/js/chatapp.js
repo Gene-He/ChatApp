@@ -15,16 +15,6 @@ window.onload = function() {
     setInterval(function(){sendHeartBeats()} , 30000);
     webSocket.onclose = () => alert("WebSocket connection closed");
     webSocket.onmessage = (event) => updateChatRoom(event.data);
-    setTimeout(keepAlive, 10000);
-}
-
-/**
- * keep web socket alive, otherwise disconnect inactive
- */
-function keepAlive(){
-    if (webSocket.readyState == webSocket.OPEN) {
-        webSocket.send('keepAlive');
-    }
 }
 
 /**
