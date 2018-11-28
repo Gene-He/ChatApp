@@ -85,26 +85,42 @@ public class DispatcherAdapter extends Observable {
      */
     public User loadUser(Session session, String body) {
         String[] tokens = body.split(WebSocketController.delimiter);
+
+        // get user ID
         int userId = getUserIdFromSession(session);
         if (userId == -1) {
             return null;
         }
 
-        User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
-                tokens[3], tokens[4], null);
-
-        users.put(userId, user);
-
-        for(ChatRoom room: rooms.values()) {
-            if(room.applyFilter(user)) user.addRoom(room);
+        // parse user age
+        int age = 0;
+        try {
+            age = Integer.valueOf(tokens[2]);
+        }
+        catch (Exception e) {
+            System.out.println("Illegal input for age");
         }
 
+        // create user
+        User user = new User(userId, session, tokens[1], age,
+                tokens[3], tokens[4], null);
+        users.put(userId, user);
+
+        for (ChatRoom room: rooms.values()) {
+            if(room.applyFilter(user)) {
+                user.addRoom(room);
+            }
+        }
+
+        // send info to front end
         try {
             session.getRemote().sendString(getChatBoxForUser(userId).toJson());
             session.getRemote().sendString(getRoomsForUser(userId).toJson());
         } catch (IOException exception) {
             System.out.println("Failed when sending room information for new user on login!");
         }
+
+        // user is observer
         addObserver(user);
         return user;
     }
@@ -117,26 +133,33 @@ public class DispatcherAdapter extends Observable {
      * @return the new room that has been loaded
      */
     public ChatRoom loadRoom(Session session, String body) {
-        //get this user
-        int userId = getUserIdFromSession(session);
-        User user = users.get(userId);
-
-        if (user == null) {
-            return null;
-        }
-
         //check the specifications in the body
         String[] info = body.split(WebSocketController.delimiter);
         Preconditions.checkArgument(info.length == 6 && info[0].equals("create"), "Illegal create room message format: %s", body);
 
+        //get this user
+        int userId = getUserIdFromSession(session);
+        User user = users.get(userId);
+        if (user == null) {
+            return null;
+        }
+
         String roomName = info[1];
-        int ageLower = Integer.parseInt(info[2]);
-        int ageUpper = Integer.parseInt(info[3]);
 
-        //construct the room
-        ChatRoom room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
+        int ageLower;
+        int ageUpper;
+        try {
+            ageLower = Integer.parseInt(info[2]);
+            ageUpper = Integer.parseInt(info[3]);
+        } catch (Exception e) {
+            System.out.println("Illegal age restrictions");
+            return null;
+        }
 
-        if(room.applyFilter(user)) {
+        ChatRoom room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, user, ageLower, ageUpper,
+                info[4].split(","), info[5].split(","), this);
+
+        if (room.applyFilter(user)) {
             rooms.put(room.getId(), room);
             //update the room
             room.getUsers().put(user.getId(), user.getName());
@@ -190,6 +213,7 @@ public class DispatcherAdapter extends Observable {
         }
 
         users.remove(userId);
+        deleteObserver(user);
     }
 
     /**
@@ -240,7 +264,7 @@ public class DispatcherAdapter extends Observable {
             //add user as an observer of the room
             room.addUser(user);
 
-            // TODO: Send responses for all users in this room.
+            // TODO: Send responses for all users in this room. Better send command to users in a room.
             try {
                 //session.getRemote().sendString(getRoomsForUser(user.getId()).toJson());
                 for (int id : room.getUsers().keySet()) {
@@ -292,7 +316,7 @@ public class DispatcherAdapter extends Observable {
         }
 
 
-        // TODO: send responses to all users in this room.
+        // TODO: send responses to all users in this room. Better send command to users in a room.
         try {
             for (int id : room.getUsers().keySet()) {
                 System.out.println("Send Join room and chatBox response for user: " + users.get(id).getName());
@@ -311,18 +335,26 @@ public class DispatcherAdapter extends Observable {
         if(room.getOwner() == user) unloadRoom(roomId);
     }
 
+    /**
+     * User leaves a chat room voluntarily
+     * @param session
+     * @param body
+     */
     public void voluntaryLeaveRoom(Session session, String body) {
         leaveRoom(session, body+"|left_voluntarily.");
     }
 
+    /**
+     * User was ejected from a chat room
+     * @param session
+     * @param body
+     */
     public void ejectFromRoom(Session session, String body){
         leaveRoom(session, body+"|was_ejected_for_violating_chatroom_language_policy.");
     }
 
-
-
-    // TODO: I question the need for this method. We don't have to allow this. (-Alex)
-    // TODO: Deprecated
+    // TODO: Deprecated for now.
+    // Restrictions in a chat room could be modified after room created
     /**
      * Make modification on chat room filer by the owner.
      * @param session the session of the chat room owner
@@ -339,14 +371,13 @@ public class DispatcherAdapter extends Observable {
      */
     public void sendMessage(Session session, String body) {
         System.out.println("sendMessage message: " + body);
-        String[] info = body.split("\\|");
+        String[] info = body.split(WebSocketController.delimiter);
         int messageId = nextMessageId.getAndIncrement();
         int roomId = Integer.parseInt(info[1]);
         int receiverId = Integer.parseInt(info[2]);
         int senderId = userIdFromSession.get(session);
         String message = info[3];
 
-        // TODO: check if this message contain unallowed words
         if (Arrays.asList(message.split(" ")).contains("hate")) {
             ejectFromRoom(session, "leave|" + roomId);
             return;
