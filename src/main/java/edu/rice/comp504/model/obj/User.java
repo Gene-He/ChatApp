@@ -6,19 +6,19 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.util.*;
 import java.util.Observable;
 import java.util.Observer;
-/*
-The User class defines a user object and private fields of a user
-*/
+
+/**
+ * Represent a user
+ */
 public class User implements Observer {
 
     private int id;
-    private transient Session session;
-
-    private String name;
     private int age;
+    private String name;
     private String location;
     private String school;
 
+    private transient Session session;
     private transient List<Integer> joinedRoomIds;
     private transient List<Integer> availableRoomIds;
 
@@ -121,10 +121,15 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void addRoom(ChatRoom room) {
+        if (room == null) {
+            return;
+        }
+
         int roomId = room.getId();
 
-        if(room.applyFilter(this))
-            this.availableRoomIds.add(roomId);
+        if(room.applyFilter(this)) {
+            availableRoomIds.add(roomId);
+        }
     }
 
     /**
@@ -132,13 +137,17 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void removeRoom(ChatRoom room) {
+        if (room == null) {
+            return;
+        }
+
         int roomId = room.getId();
 
         if (joinedRoomIds.contains(roomId))
-            this.joinedRoomIds.remove(Integer.valueOf(roomId));
+            joinedRoomIds.remove(Integer.valueOf(roomId));
 
         if (availableRoomIds.contains(roomId))
-            this.availableRoomIds.remove(Integer.valueOf(roomId));
+            availableRoomIds.remove(Integer.valueOf(roomId));
     }
 
     /**
@@ -146,6 +155,10 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void moveToJoined(ChatRoom room) {
+        if (room == null) {
+            return;
+        }
+
         int roomId = room.getId();
         availableRoomIds.remove(Integer.valueOf(roomId));
         joinedRoomIds.add(roomId);
@@ -156,7 +169,10 @@ public class User implements Observer {
      * @param room the chat room object
      * */
     public void moveToAvailable(ChatRoom room) {
-        int roomId=room.getId();
+        if (room == null) {
+            return;
+        }
+        int roomId = room.getId();
 
         this.availableRoomIds.add(roomId);
         this.joinedRoomIds.remove(Integer.valueOf(roomId));

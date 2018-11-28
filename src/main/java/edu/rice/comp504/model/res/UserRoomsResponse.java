@@ -1,8 +1,6 @@
 package edu.rice.comp504.model.res;
 
-import com.google.gson.Gson;
 import edu.rice.comp504.model.obj.ChatRoom;
-
 import java.util.Set;
 
 public class UserRoomsResponse extends AResponse {
@@ -26,12 +24,6 @@ public class UserRoomsResponse extends AResponse {
         this.joinedRooms = joinedRooms;
         this.availableRooms = availableRooms;
     }
-
-//    @Override
-//    public String toJson() {
-//        Gson gson = new Gson();
-//        return gson.toJson(this);
-//    }
 
     public int getUserId() {
         return userId;

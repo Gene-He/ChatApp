@@ -10,6 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import edu.rice.comp504.controller.WebSocketController;
 import edu.rice.comp504.model.cmd.*;
 import edu.rice.comp504.model.obj.ChatBox;
 import org.eclipse.jetty.websocket.api.Session;
@@ -19,6 +20,9 @@ import edu.rice.comp504.model.obj.Message;
 import edu.rice.comp504.model.obj.User;
 import edu.rice.comp504.model.res.*;
 
+/**
+ * DispatcherAdapter is responsible for communication between controller and other model class
+ */
 public class DispatcherAdapter extends Observable {
 
     private AtomicInteger nextUserId;
@@ -55,7 +59,6 @@ public class DispatcherAdapter extends Observable {
      * Allocate a user id for a new session.
      * @param session the new session
      */
-    //TODO:   controller should call this method, and then call loadUser.  (-Alex)
     public void newSession(Session session) {
         userIdFromSession.put(session, nextUserId.getAndIncrement());
     }
@@ -67,16 +70,11 @@ public class DispatcherAdapter extends Observable {
      * @return the user id binding with session
      */
     public int getUserIdFromSession(Session session) {
-        return this.userIdFromSession.get(session);
-    }
-
-    /**
-     * Determine whether the session exists.
-     * @param session the session
-     * @return whether the session is still connected or not
-     */
-    public boolean containsSession(Session session) {
-        return this.userIdFromSession.containsKey(session);
+        int res = -1;
+        if (userIdFromSession.containsKey(session)) {
+            res = userIdFromSession.get(session);
+        }
+        return res;
     }
 
     /**
@@ -86,12 +84,15 @@ public class DispatcherAdapter extends Observable {
      * @return the new user that has been loaded
      */
     public User loadUser(Session session, String body) {
-        System.out.println("user login message: " + body);
-        String[] tokens = body.split("\\|");
+        String[] tokens = body.split(WebSocketController.delimiter);
         int userId = getUserIdFromSession(session);
+        if (userId == -1) {
+            return null;
+        }
+
         User user = new User(userId, session, tokens[1], Integer.valueOf(tokens[2]),
                 tokens[3], tokens[4], null);
-        System.out.println(userId + " " + user.getName());
+
         users.put(userId, user);
 
         for(ChatRoom room: rooms.values()) {

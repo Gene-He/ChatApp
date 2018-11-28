@@ -7,19 +7,20 @@ import edu.rice.comp504.model.cmd.CmdFactory;
 import java.util.*;
 import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
-/*
-The Chatroom class defines a chat room object and private fileds of a chat room
-*/
+
+/**
+ * Represent a chat room
+ */
 public class ChatRoom extends Observable {
 
     private int id;
     private String name;
     private User owner;
-    private transient int ageLowerBound;
-    private transient int ageUpperBound;
     private String[] locations;
     private String[] schools;
 
+    private transient int ageLowerBound;
+    private transient int ageUpperBound;
     private transient DispatcherAdapter dis;
 
     // Maps user id to the user name
@@ -46,17 +47,13 @@ public class ChatRoom extends Observable {
                     int lower, int upper, String[] locations, String[] schools,
                     DispatcherAdapter dispatcher) {
         this.id = id;
-
         this.name = name;
         this.owner = owner;
-
         this.ageLowerBound = lower;
         this.ageUpperBound = upper;
         this.locations = locations;
         this.schools = schools;
-
         this.dis = dispatcher;
-
         this.userNameFromUserId = new ConcurrentHashMap<>();
         this.notifications = new LinkedList<>();
         this.chatHistory = new ConcurrentHashMap<>();
@@ -113,7 +110,7 @@ public class ChatRoom extends Observable {
      * Return users in the chat room
      */
     public Map<Integer, String> getUsers() {
-        return userNameFromUserId;
+        return this.userNameFromUserId;
     }
 
     /**
@@ -138,7 +135,13 @@ public class ChatRoom extends Observable {
         this.schools = schools;
     }
 
-    public void addNotification(String s) {notifications.add(s);}
+    /**
+     * Add a notification
+     * @param s
+     */
+    public void addNotification(String s) {
+        notifications.add(s);
+    }
 
     /**
      * If user satisfy all restrictions and has the room in his available room list
@@ -148,9 +151,9 @@ public class ChatRoom extends Observable {
         if (userNameFromUserId.containsKey(user.getId()) && !applyFilter(user)){
             return false;
         }
-        notifyObservers(CmdFactory.makeJoinRoomCmd(this,user));
-        userNameFromUserId.put(user.getId(),user.getName());
-        notifications.add(user.getName()+ " joined this room");
+        notifyObservers(CmdFactory.makeJoinRoomCmd(this, user));
+        userNameFromUserId.put(user.getId(), user.getName());
+        addNotification(user.getName()+ " joined this room");
         addObserver(user);
         return true;
     }
