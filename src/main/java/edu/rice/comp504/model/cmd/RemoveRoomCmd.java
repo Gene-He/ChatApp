@@ -7,6 +7,9 @@ import edu.rice.comp504.model.obj.User;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+/**
+ * Command to remove chat room
+ */
 class RemoveRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;

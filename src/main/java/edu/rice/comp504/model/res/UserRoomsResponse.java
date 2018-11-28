@@ -3,6 +3,9 @@ package edu.rice.comp504.model.res;
 import edu.rice.comp504.model.obj.ChatRoom;
 import java.util.Set;
 
+/**
+ * Represent different type of rooms for a user
+ */
 public class UserRoomsResponse extends AResponse {
     private int userId;
     private String username;

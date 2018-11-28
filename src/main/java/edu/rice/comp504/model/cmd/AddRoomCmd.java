@@ -6,6 +6,9 @@ import edu.rice.comp504.model.obj.User;
 
 import java.io.IOException;
 
+/**
+ * Command to add a room
+ */
 class AddRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;

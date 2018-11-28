@@ -5,6 +5,9 @@ import edu.rice.comp504.model.obj.User;
 
 import java.util.stream.Stream;
 
+/**
+ * Command to leave room
+ */
 class LeaveRoomCmd implements IUserCmd {
 
     private ChatRoom chatRoom;

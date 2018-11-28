@@ -4,6 +4,9 @@ import edu.rice.comp504.model.obj.ChatBox;
 
 import java.util.List;
 
+/**
+ * Represent chat history for a user
+ */
 public class UserChatHistoryResponse extends AResponse {
 
     private String username;
@@ -17,22 +20,6 @@ public class UserChatHistoryResponse extends AResponse {
     public UserChatHistoryResponse(String type, String username, List<ChatBox> chatHistory) {
         super(type);
         this.username = username;
-        this.chatHistory = chatHistory;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public List<ChatBox> getChatHistory() {
-        return chatHistory;
-    }
-
-    public void setChatHistory(List<ChatBox> chatHistory) {
         this.chatHistory = chatHistory;
     }
 }

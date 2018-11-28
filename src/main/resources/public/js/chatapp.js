@@ -4,18 +4,22 @@ const webSocket = new WebSocket("wss://" + location.hostname + ":" + location.po
 var chattingUser = "";
 var username = "";
 var userId = "";
-var roomId ="";
+var roomId = "";
 var joinedRoom = [];
 var ownerRoom = [];
+
 /**
  * Entry point into chat room
  */
 window.onload = function() {
     webSocket.onclose = () => alert("WebSocket connection closed");
     webSocket.onmessage = (event) => updateChatRoom(event.data);
-    setTimeout(keepAlive, 10000); // keep web socket alive, otherwise disconnect inactive
+    setTimeout(keepAlive, 10000);
 }
 
+/**
+ * keep web socket alive, otherwise disconnect inactive
+ */
 function keepAlive(){
     if (webSocket.readyState == webSocket.OPEN) {
         webSocket.send('keepAlive');
@@ -36,31 +40,31 @@ function sendMessage(msg) {
  * @param message  The message to update the chat room with.
  */
 function updateChatRoom(data) {
-    console.log("Receiving: " + data);
+//    console.log("Receiving: " + data);
     var message = JSON.parse(data);
-    console.log("Parsed: ");
-    console.log(message);
-    console.log("Receiving: " + message);
+//    console.log("Parsed: ");
+//    console.log(message);
+//    console.log("Receiving: " + message);
     if(message['type'] === "NewUserResponse"){
 
     }
-    if(message['type'] === "NewRoomResponse"){
+    else if(message['type'] === "NewRoomResponse"){
 
     }
-    if(message['type'] === "RoomNotifications"){
+    else if(message['type'] === "RoomNotifications"){
         console.log("get RoomNotificationResponse");
         showTip(message);
 
     }
-    if(message['type'] === "RoomUsersResponse"){
+    else if(message['type'] === "RoomUsersResponse"){
         console.log("RoomUsersResponse");
 
     }
-    if(message['type'] === "UserChatHistory"){
+    else if(message['type'] === "UserChatHistory"){
        updateMyChats(message["chatHistory"]);
 
     }
-    if(message['type'] === "UserRooms"){
+    else if(message['type'] === "UserRooms"){
         updateHelloUser(message['username']);
         updateRoomList(message);
         updateMyRooms(message);
@@ -114,6 +118,7 @@ function addRoomListCard(roomName, roomId, type){
     html = html.replace("[Button]", buttonHTML);
     $("#room-list").append(html);
 }
+
 
 function updateRoomList(message){
     $("#room-list").empty();
@@ -177,9 +182,6 @@ function updateMyChats(message){
  */
 function createUserInfo()
 {
-//    setTimeout(function() {
-//        document.getElementById("login_close").click();
-//    }, 4000);
     var uname = document.getElementById("reg_username").value;
     var age = document.getElementById("reg_age").value;
     var loc = document.getElementById("reg_location").value;
@@ -195,11 +197,7 @@ function createUserInfo()
 /**
  * Send Create Room Request with Room Info to Server
  */
-function createRoomInfo()
-{
-//    setTimeout(function() {
-//        document.getElementById("createroom_close").click(); // Click on the checkbox
-//    }, 4000);
+function createRoomInfo() {
     var rname = document.getElementById("reg_roomname").value;
     var minage = document.getElementById("reg_minage").value;
     var maxage = document.getElementById("reg_maxage").value;
@@ -214,7 +212,7 @@ function createRoomInfo()
     document.getElementById("createroom_close").click(); // Click on the checkbox
 }
 
-function getRoomTemplate(room){
+function getRoomTemplate(room) {
     return parseDom(
         '<div class="container"> \
             <div class="card"> \
@@ -231,6 +229,7 @@ function getRoomTemplate(room){
             </div> \
         </div>');
 }
+
 function leaveRoom(id){
     sendMessage("leave|"+id);
 }
@@ -271,6 +270,7 @@ function parseDom(arg) {
     objE.innerHTML = arg;
     return objE.childNodes[0];
 }
+
 function createUserTable(room){
     console.log(room);
     var map = room["userNameFromUserId"];
@@ -304,6 +304,7 @@ function joinRoom(roomId){
     // Grammar: join|[roomId]
     sendMessage("join|" + roomId);
 }
+
 function openChatDialog(userInfo,roomInfo,chatHistory){
     var room = document.getElementById("chat-box");
     console.log(room);
@@ -336,9 +337,11 @@ function getChatTemplate(userInfo,roomInfo,chatHistory){
         </div>');
 
 }
+
 function sendChatMessage(roomId,userId,node){
     sendMessage("send|" + roomId +"|"+userId + "|"+node.getElementsByTagName("input")[0].value);
 }
+
 function endChatDialog(){
     var room = document.getElementById("chat-box");
     room.removeChild(room.firstChild);
@@ -362,7 +365,7 @@ function getChatRoomNameFromUser(node){
 }
 
 function getChatHistory(chatHistory){
-  //  chatHistory = [{"sender" : "Allen","message" : "Hi I am Allen"},{"sender" : "Bob","message" : "Hi I am Bob"}]
+  // example: chatHistory = [{"sender" : "Allen","message" : "Hi I am Allen"},{"sender" : "Bob","message" : "Hi I am Bob"}]
     if (chatHistory == null){
         return "";
     }

@@ -14,8 +14,8 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 @WebSocket
 public class WebSocketController {
 
-
     public static final String delimiter = "\\|";
+
     /**
      * Open user's session.
      * @param user The user whose session is opened.
@@ -24,7 +24,6 @@ public class WebSocketController {
     public void onConnect(Session user) {
         ChatAppController.getDispatcher().newSession(user);
     }
-
 
     /**
      * Send a message.
@@ -76,7 +75,8 @@ public class WebSocketController {
 
     /**
      * We define all types of actions for different requests.
-     * We can directly call dispatcher's method in onMessage(), but these separate actions make different services clear and give us a chance to check
+     * We can directly call dispatcher's method in onMessage(),
+     * but these separate actions make different services clear and give us a chance to check
      * if the message is in required format before actually calling dispatcher.
      * */
 
@@ -186,7 +186,6 @@ public class WebSocketController {
      * @param message
      */
     private void loginAction(Session user, String message) {
-        System.out.println("loginAction");
         Preconditions.checkArgument(message.split(delimiter).length == 5, "Illegal login message format: %s", message);
         ChatAppController.getDispatcher().newSession(user);
         ChatAppController.getDispatcher().loadUser(user, message);

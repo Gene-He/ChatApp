@@ -21,44 +21,4 @@ public class ChatBox {
         this.anotherUserName = username;
         this.chatHistory = chatHistory;
     }
-
-    public int getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(int roomId) {
-        this.roomId = roomId;
-    }
-
-    public String getRoomName() {
-        return roomName;
-    }
-
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
-
-    public int getAnotherUserId() {
-        return anotherUserId;
-    }
-
-    public void setAnotherUserId(int anotherUserId) {
-        this.anotherUserId = anotherUserId;
-    }
-
-    public String getAnotherUserName() {
-        return anotherUserName;
-    }
-
-    public void setAnotherUserName(String anotherUserName) {
-        this.anotherUserName = anotherUserName;
-    }
-
-    public List<Message> getChatHistory() {
-        return chatHistory;
-    }
-
-    public void setChatHistory(List<Message> chatHistory) {
-        this.chatHistory = chatHistory;
-    }
 }
