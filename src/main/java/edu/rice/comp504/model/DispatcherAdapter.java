@@ -19,6 +19,7 @@ import edu.rice.comp504.model.obj.ChatRoom;
 import edu.rice.comp504.model.obj.Message;
 import edu.rice.comp504.model.obj.User;
 import edu.rice.comp504.model.res.*;
+import org.eclipse.jetty.websocket.api.WebSocketException;
 
 /**
  * DispatcherAdapter is responsible for communication between controller and other model class
@@ -215,39 +216,42 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void joinRoom(Session session, String body) {
-        System.out.println("join room message: " + body);
-        //get room from body
-        String[] info = body.split("\\|");
+        String[] info = body.split(WebSocketController.delimiter);
         Preconditions.checkArgument(info.length == 2 && info[0].equals("join"), "Illegal join room message format: %s", body);
+
         int roomId = Integer.parseInt(info[1]);
-        ChatRoom my_room = rooms.get(roomId);
+        ChatRoom room = rooms.get(roomId);
+        if (room == null) {
+            return;
+        }
 
         //get this user
-        User my_user = users.get(getUserIdFromSession(session));
+        User user = users.get(getUserIdFromSession(session));
+        if (user == null) {
+            return;
+        }
 
         //check room requirements, send rejection if join fails
-        boolean join_okay = my_room.applyFilter(my_user);
-
-        if(!join_okay) {
-
-        } else {
-
+        if(room.applyFilter(user)) {
             //update joined and available room lists for user
-            my_user.moveToJoined(my_room);
+            user.moveToJoined(room);
 
             //add user as an observer of the room
-            my_room.addUser(my_user);
+            room.addUser(user);
 
             // TODO: Send responses for all users in this room.
             try {
-                //session.getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
-                for (int id : my_room.getUsers().keySet()) {
+                //session.getRemote().sendString(getRoomsForUser(user.getId()).toJson());
+                for (int id : room.getUsers().keySet()) {
                     System.out.println("Send Join room response for user: " + users.get(id).getName());
                     users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
                 }
             }
             catch (IOException exception) {
                 System.out.println("Failed when sending room information upon user joining room!");
+            }
+            catch (WebSocketException e) {
+                System.out.println("Session not valid now");
             }
         }
     }
@@ -258,49 +262,52 @@ public class DispatcherAdapter extends Observable {
      * @param body of format "roomId"
      */
     public void leaveRoom(Session session, String body) {
-        System.out.println("leave room message: " + body);
         //get room from body
-        String[] info = body.split("\\|");
+        String[] info = body.split(WebSocketController.delimiter);
         int roomId = Integer.parseInt(info[1]);
-        ChatRoom my_room = rooms.get(roomId);
+        ChatRoom room = rooms.get(roomId);
+
+        if (room == null) {
+            return;
+        }
 
         //get this user
-        User my_user = users.get(getUserIdFromSession(session));
+        User user = users.get(getUserIdFromSession(session));
 
         //update joined/available rooms for this user
-        my_user.moveToAvailable(my_room);
+        user.moveToAvailable(room);
 
         //remove user as observer for this room
-        my_room.removeUser(my_user, " ");
+        room.removeUser(user, " ");
 
         //add notification to room, with reason
         if(info.length == 3) {
-            String new_notification = my_user.getName();
+            String new_notification = user.getName();
             String[] notification_words = info[2].split("_");
             for(String s: notification_words) {
                 new_notification += (" "+s);
             }
-            my_room.addNotification(new_notification);
+            room.addNotification(new_notification);
         }
 
 
         // TODO: send responses to all users in this room.
         try {
-            for (int id : my_room.getUsers().keySet()) {
+            for (int id : room.getUsers().keySet()) {
                 System.out.println("Send Join room and chatBox response for user: " + users.get(id).getName());
                 users.get(id).getSession().getRemote().sendString(getRoomsForUser(id).toJson());
                 users.get(id).getSession().getRemote().sendString(getChatBoxForUser(id).toJson());
             }
-            my_user.getSession().getRemote().sendString(getRoomsForUser(my_user.getId()).toJson());
-            my_user.getSession().getRemote().sendString(getChatBoxForUser(my_user.getId()).toJson());
-        } catch (IOException excpetion) {
+            user.getSession().getRemote().sendString(getRoomsForUser(user.getId()).toJson());
+            user.getSession().getRemote().sendString(getChatBoxForUser(user.getId()).toJson());
+        } catch (IOException e) {
             System.out.println("Failed when sending room information for user leaving room!");
+        } catch (WebSocketException e) {
+            System.out.println("Session not valid now");
         }
 
         //delete room if this user is the owner
-        if(my_room.getOwner() == my_user) unloadRoom(roomId);
-
-
+        if(room.getOwner() == user) unloadRoom(roomId);
     }
 
     public void voluntaryLeaveRoom(Session session, String body) {
