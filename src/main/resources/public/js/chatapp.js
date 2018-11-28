@@ -12,6 +12,7 @@ var ownerRoom = [];
  * Entry point into chat room
  */
 window.onload = function() {
+    setInterval(function(){sendHeartBeats()} , 30000);
     webSocket.onclose = () => alert("WebSocket connection closed");
     webSocket.onmessage = (event) => updateChatRoom(event.data);
     setTimeout(keepAlive, 10000);
@@ -395,3 +396,9 @@ function showTip(message) {
     var text = message["anotherUsername"] + " from " + message["roomName"] + " send you a message!";
     $tip.stop(true).prop('class', 'alert alert-' + "info").text(text).fadeIn(500).delay(2000).fadeOut(500);
 }
+
+function sendHeartBeats(){
+    sendMessage("xxx");
+}
+
+
