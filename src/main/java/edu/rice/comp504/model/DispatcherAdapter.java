@@ -118,7 +118,6 @@ public class DispatcherAdapter extends Observable {
      */
     public ChatRoom loadRoom(Session session, String body) {
         //get this user
-        System.out.println("create room message: " + body);
         int userId = getUserIdFromSession(session);
         User user = users.get(userId);
 
@@ -127,8 +126,9 @@ public class DispatcherAdapter extends Observable {
         }
 
         //check the specifications in the body
-        String[] info = body.split("\\|");
+        String[] info = body.split(WebSocketController.delimiter);
         Preconditions.checkArgument(info.length == 6 && info[0].equals("create"), "Illegal create room message format: %s", body);
+
         String roomName = info[1];
         int ageLower = Integer.parseInt(info[2]);
         int ageUpper = Integer.parseInt(info[3]);
@@ -136,7 +136,7 @@ public class DispatcherAdapter extends Observable {
         //construct the room
         ChatRoom room = new ChatRoom(nextRoomId.getAndIncrement(), roomName, user, ageLower, ageUpper, info[4].split(","), info[5].split(","), this);
 
-        if(true/*room.applyFilter(user)*/) { // TODO: revert this after testing
+        if(room.applyFilter(user)) {
             rooms.put(room.getId(), room);
             //update the room
             room.getUsers().put(user.getId(), user.getName());
@@ -154,7 +154,6 @@ public class DispatcherAdapter extends Observable {
             room = null;
         }
 
-        // TODO: we need to send this response to all users
         try {
             for (int id : users.keySet()) {
                 System.out.println("Send create room response for user: " + users.get(id).getName());
@@ -164,9 +163,7 @@ public class DispatcherAdapter extends Observable {
         catch (IOException exception) {
             System.out.println("Failed when sending room information upon user creating room!");
         }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+
         return room;
     }
 
@@ -175,22 +172,21 @@ public class DispatcherAdapter extends Observable {
      * @param userId the id of the user to be removed
      */
     public void unloadUser(int userId) {
-
-        //get this user
-        User my_user = users.get(userId);
-        Session my_session = my_user.getSession();
-        List<Integer> joined_rooms = my_user.getJoinedRoomIds();
-
-        //remove user from all rooms
-        for(Integer room_id : joined_rooms) {
-            rooms.get(room_id).addNotification(my_user.getName()+" is logging out.");
-            leaveRoom(my_session, "leave "+room_id);
-            // rooms.get(room_id).removeUser(my_user, "user logged out.")
+        User user = users.get(userId);
+        if (user == null) {
+            return;
         }
 
-        //remove user from map
-        users.remove(userId);
+        Session session = user.getSession();
+        List<Integer> joined_rooms = user.getJoinedRoomIds();
 
+        //remove user from all joined rooms
+        for(Integer room_id : joined_rooms) {
+            rooms.get(room_id).addNotification(user.getName() + " is logging out.");
+            leaveRoom(session, "leave " + room_id);
+        }
+
+        users.remove(userId);
     }
 
     /**
@@ -198,6 +194,9 @@ public class DispatcherAdapter extends Observable {
      * @param roomId the id of the chat room to be removed
      */
     public void unloadRoom(int roomId) {
+        if (!rooms.containsKey(roomId)) {
+            return;
+        }
         rooms.get(roomId).removeAllUsers();
 
         //This command now has the DA as a member, and will perform the session.getRemote to send the response.
