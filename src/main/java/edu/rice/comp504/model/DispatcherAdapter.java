@@ -77,6 +77,16 @@ public class DispatcherAdapter extends Observable {
         return res;
     }
 
+
+    /**
+     * Return whether a session exists
+     * @param session
+     * @return
+     */
+    public boolean containsSession(Session session) {
+        return userIdFromSession.containsKey(session);
+    }
+
     /**
      * Load a user into the environment.
      * @param session the session that requests to called the method
@@ -353,17 +363,6 @@ public class DispatcherAdapter extends Observable {
         leaveRoom(session, body+"|was_ejected_for_violating_chatroom_language_policy.");
     }
 
-    // TODO: Deprecated for now.
-    // Restrictions in a chat room could be modified after room created
-    /**
-     * Make modification on chat room filer by the owner.
-     * @param session the session of the chat room owner
-     * @param body of format "roomId lower upper {[location],}*{[location]} {[school],}*{[school]}"
-     */
-    public void modifyRoom(Session session, String body) {
-
-    }
-
     /**
      * A sender sends a string message to a receiver.
      * @param session the session of the message sender
@@ -427,6 +426,10 @@ public class DispatcherAdapter extends Observable {
         // constructAndSendResponseForUser(rooms.get(roomId).getOwner().getId());
     }
 
+    /**
+     * Sends the response
+     * @param userId
+     */
     private void constructAndSendResponseForUser(int userId) {
         try {
             users.get(userId).getSession().getRemote().sendString(getRoomsForUser(userId).toJson());
@@ -490,55 +493,6 @@ public class DispatcherAdapter extends Observable {
 
     }
 
-    /**
-     * Notify the client for refreshing.
-     * @param user user expected to receive the notification
-     * @param response the information for notifying
-     */
-    public static void notifyClient(User user, AResponse response) {
-    }
-
-
-    /**
-     * Notify session about the message.
-     * @param session the session to notify
-     * @param response the notification information
-     */
-    public static void notifyClient(Session session, AResponse response) {
-    }
-
-
-    //TODO: The three methods below already exist as a methods in the chatroom class. Do we need them here for some reason?
-    /**
-     * Get the names of all chat room members.
-     * @param roomId the id of the chat room
-     * @return all chat room members, mapping from user id to user name
-     */
-    private Map<Integer, String> getUsers(int roomId) {
-        return rooms.get(roomId).getUsers();
-    }
-
-    /**
-     * Get notifications in the chat room.
-     * @param roomId the id of the chat room
-     * @return notifications of the chat room
-     */
-    private List<String> getNotifications(int roomId) {
-        return rooms.get(roomId).getNotifications();
-    }
-
-    /**
-     * Get chat history between user A and user B (commutative).
-     * @param roomId the id of the chat room
-     * @param userAId the id of user A
-     * @param userBId the id of user B
-     * @return chat history between user A and user B at a chat room
-     */
-    private List<Message> getChatHistory(int roomId, int userAId, int userBId) {
-        String targetKey = Math.min(userAId, userBId) + "&" + Math.max(userAId, userBId);
-        return rooms.get(roomId).getChatHistory().get(targetKey);
-    }
-
     public AResponse getRoomsForUser(int userId) {
         Set<ChatRoom> availableRooms = users.get(userId).getAvailableRoomIds().stream().map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
         Set<ChatRoom> joinedRooms    = users.get(userId).getJoinedRoomIds().stream().filter(roomId -> rooms.get(roomId).getOwner().getId() != userId).map(roomId -> rooms.get(roomId)).collect(Collectors.toSet());
@@ -578,7 +532,4 @@ public class DispatcherAdapter extends Observable {
         }
     }
 
-    public boolean containsSession(Session session) {
-        return userIdFromSession.containsKey(session);
-    }
 }

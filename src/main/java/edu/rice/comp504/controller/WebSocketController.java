@@ -40,8 +40,6 @@ public class WebSocketController {
             loginAction(user, message);
         } else if (action.equals("create")) {
             addRoomAction(user, message);
-        } else if (action.equals("modify")) {
-            enforceFilterAction(user, message);
         } else if (action.equals("join")) {
             joinRoomAction(user, message);
         } else if (action.equals("leave")) {
@@ -97,16 +95,6 @@ public class WebSocketController {
     private void addRoomAction(Session user, String message) {
         Preconditions.checkArgument(message.split(delimiter).length == 6, "Illegal create room message format: %s", message);
         ChatAppController.getDispatcher().loadRoom(user, message.trim());
-    }
-
-    /**
-     * modify chat room
-     * @param user
-     * @param message
-     */
-    private void enforceFilterAction(Session user, String message) {
-        Preconditions.checkArgument(message.split(delimiter).length == 6, "Illegal modify room message format: %s", message);
-        ChatAppController.getDispatcher().modifyRoom(user, message.trim());
     }
 
     /**
