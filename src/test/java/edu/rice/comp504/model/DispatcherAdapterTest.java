@@ -41,6 +41,7 @@ public class DispatcherAdapterTest extends TestCase {
     {
         // check contains
         Session session = mock(Session.class);
+        dis.newSession(session);
         Assert.assertTrue("id is valid larger than 0", dis.containsSession(session));
 
     }

@@ -577,4 +577,8 @@ public class DispatcherAdapter extends Observable {
             return Integer.parseInt(users[0]);
         }
     }
+
+    public boolean containsSession(Session session) {
+        return userIdFromSession.containsKey(session);
+    }
 }
